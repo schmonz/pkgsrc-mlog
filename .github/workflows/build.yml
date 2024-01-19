@@ -1,14 +1,15 @@
 name: Build
 
 # TODO:
-# - how to publish release?
-# - how to use cache in a vmactions?
-# - what's a good value for the cache key? (for now, an OS-specific constant!)
-# - how do I force cache avoidance? (when it's necessary to re-bootstrap for some reason)
-# - is it possible to share the cache across repos? (I have many packages)
-# - privileged would be nice
+# - need privileged pkgsrc, so it's conceivable that releases would work for anyone
 #   - https://github.com/actions/toolkit/issues/946
 #   - https://github.com/actions/cache/pull/181
+#
+# - how to use cache in a vmactions? (on host, probably)
+#
+# - is it possible to share the cache across repos? (I have many packages)
+#
+# - publish releases?
 
 on:
   push:
@@ -21,7 +22,7 @@ jobs:
       ${{ matrix.osversion }}
     runs-on: macos-${{ matrix.osversion }}
     strategy:
-      fail-fast: true	# false
+      fail-fast: true
       matrix:
         osversion: ["12"] #, "11"
     steps:
@@ -110,15 +111,19 @@ jobs:
         pushd /var/tmp/pkgsrc-current/${category}/this-schmonz-repo
         bmake package
 
-        release_asset=$(bmake show-var VARNAME=PKGFILE)
-        echo "release_asset=${release_asset}" >> "${GITHUB_ENV}"
         release_version=$(bmake show-var VARNAME=PKGVERSION)
+        mv $(bmake show-var VARNAME=PKGFILE) ..
+        cd ..
+        for i in *.tgz; do
+          mv $i ${{ runner.os }}-${{ matrix.osversion }}-$i
+        done
+        release_asset=$(echo *.tgz)
+        echo "release_asset=${release_asset}" >> "${GITHUB_ENV}"
         echo "release_version=${release_version}" >> "${GITHUB_ENV}"
 
     - name: Pretend to publish package
       run: |
         set -e
-        echo "PLATFORM: ${{ runner.os }} ${{ matrix.osversion }}"
         echo "FILE: ${{ env.release_asset }}"
         echo "VERSION: version ${{ env.release_version }}"
 
