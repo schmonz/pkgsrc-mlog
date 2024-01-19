@@ -50,9 +50,7 @@ jobs:
       id: bootstrap-build
       run: |
         set -e
-        if [ -d ~/pkg ]; then
-          echo "SCHMONZ: using previous bootstrap"
-        else
+        if [ ! -d ~/pkg ]; then
           pushd ${GITHUB_WORKSPACE}/pkgsrc-current/bootstrap
           ./bootstrap --unprivileged --prefix ~/pkg
           PATH=~/pkg/sbin:~/pkg/bin:${PATH}
@@ -74,26 +72,31 @@ jobs:
       run: |
         set -e
         PATH=~/pkg/sbin:~/pkg/bin:${PATH}
-        category=$(grep CATEGORIES= ${GITHUB_WORKSPACE}/this-schmonz-repo/Makefile | awk '{print $2}')
-        mv ${GITHUB_WORKSPACE}/this-schmonz-repo ${GITHUB_WORKSPACE}/pkgsrc-current/${category}
-        pushd ${GITHUB_WORKSPACE}/pkgsrc-current/${category}/this-schmonz-repo
+        pushd ${GITHUB_WORKSPACE}
+        category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
+        mv this-schmonz-repo pkgsrc-current/${category}
+        cd pkgsrc-current/${category}/this-schmonz-repo
         bmake package
 
+        mkdir ~/release-contents
+
         release_version=$(bmake show-var VARNAME=PKGVERSION)
-        mv $(bmake show-var VARNAME=PKGFILE) ..
-        cd ..
+
+        mv $(bmake show-var VARNAME=PKGFILE) ~/release-contents
+        cd ~/release-contents
         for i in *.tgz; do
           mv $i ${{ runner.os }}-${{ matrix.osversion }}-unprivileged-$i
         done
         release_asset=$(echo *.tgz)
-        echo "release_asset=${release_asset}" >> "${GITHUB_ENV}"
+
         echo "release_version=${release_version}" >> "${GITHUB_ENV}"
+        echo "release_asset=~/release-contents/${release_asset}" >> "${GITHUB_ENV}"
 
     - name: Pretend to publish package
       run: |
         set -e
-        echo "FILE: ${{ env.release_asset }}"
         echo "VERSION: version ${{ env.release_version }}"
+        echo "FILE: ${{ env.release_asset }}"
 
     - name: Publish package
       uses: softprops/action-gh-release@v1
