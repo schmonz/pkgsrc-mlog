@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  macos:
+    name: >
+      macOS
+      ${{ matrix.osversion }}
+    runs-on: macos-${{ matrix.osversion }}
+    strategy:
+      fail-fast: false
+      matrix:
+        osversion: ["12"] #, "11"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Build and Package
+      run: |
+        set -e
+
+        # fetch pkgsrc (XXX cache this)
+        mkdir /var/tmp
+        pushd /var/tmp
+        git clone --depth=1 git@github.com:NetBSD/pkgsrc.git
+
+        # bootstrap pkgsrc (XXX cache this)
+        cd pkgsrc/bootstrap
+        sudo ./bootstrap --prefix /opt/pkg
+        PATH=/opt/pkg/sbin:/opt/pkg/bin:$PATH
+        popd
+
+        # smush these files into pkgsrc
+        pkgdir=$(basename $(pwd))
+        category=$(grep CATEGORIES= Makefile | awk '{print $2}')
+        cd ..
+        rm -rf /var/tmp/pkgsrc/${category}/${pkgdir}
+        mv ${pkgdir} /var/tmp/pkgsrc/${category}
+        cd /var/tmp/pkgsrc/${category}/${pkgdir}
+
+        # generate package
+        bmake package
+        pkgfile=$(bmake show-var VARNAME=PKGFILE)
+        ls -l ${pkgfile}
+        pkg_info -L ${pkgfile}
+
+        # publish release
+        # XXX how?
