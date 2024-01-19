@@ -32,16 +32,16 @@ jobs:
       id: cache-pkgsrc-bootstrap
       uses: actions/cache@v4
       with:
-        path: /opt/pkg
-        key: ${{ runner.os }}-pkgsrc-bootstrap
+        path: ${HOME}/pkg
+        key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-bootstrap
 
     - name: Build pkgsrc bootstrap
       if: steps.cache-pkgsrc-bootstrap.outputs.cache-hit != 'true'
       run: |
         set -e
         pushd pkgsrc-current/bootstrap
-        sudo ./bootstrap --prefix /opt/pkg
-        PATH=/opt/pkg/sbin:/opt/pkg/bin:$PATH
+        ./bootstrap --unprivileged
+        PATH=${HOME}/pkg/sbin:${HOME}/pkg/bin:${PATH}
         cd ..
         ( cd */digest && bmake install )
         ( cd */nbpatch && bmake install )
@@ -55,7 +55,7 @@ jobs:
     - name: Build package
       run: |
         set -e
-        PATH=/opt/pkg/sbin:/opt/pkg/bin:$PATH
+        PATH=${HOME}/pkg/sbin:${HOME}/pkg/bin:${PATH}
         category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
         mv this-schmonz-repo pkgsrc-current/${category}
         pushd pkgsrc-current/${category}/this-schmonz-repo
