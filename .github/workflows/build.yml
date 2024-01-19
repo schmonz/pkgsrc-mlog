@@ -15,30 +15,42 @@ jobs:
       matrix:
         osversion: ["12"] #, "11"
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        path: this-schmonz-repo
     - name: Checkout pkgsrc
       uses: actions/checkout@v4
       with:
         repository: NetBSD/pkgsrc
         path: pkgsrc-current
-    - name: Build and Package
+
+    - name: Cache pkgsrc bootstrap
+      id: cache-pkgsrc-bootstrap
+      uses: actions/cache@v4
+      with:
+        path: /opt/pkg
+        key: ${{ runner.os }}-pkgsrc-bootstrap
+
+    - name: Build pkgsrc bootstrap
+      if: steps.cache-pkgsrc-bootstrap.outputs.cache-hit != 'true'
       run: |
         set -e
-
-        # bootstrap pkgsrc (XXX cache this)
         pushd pkgsrc-current/bootstrap
         sudo ./bootstrap --prefix /opt/pkg
         PATH=/opt/pkg/sbin:/opt/pkg/bin:$PATH
+        cd ..
+        ( cd */digest && bmake install )
+        ( cd */nbpatch && bmake install )
         popd
 
-        # smush these files into pkgsrc
+    - name: Checkout package
+      uses: actions/checkout@v4
+      with:
+        path: this-schmonz-repo
+
+    - name: Build package
+      run: |
+        set -e
+        PATH=/opt/pkg/sbin:/opt/pkg/bin:$PATH
         category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
         mv this-schmonz-repo pkgsrc-current/${category}
-
-        # generate package
         pushd pkgsrc-current/${category}/this-schmonz-repo
         bmake package
         pkgfile=$(bmake show-var VARNAME=PKGFILE)
