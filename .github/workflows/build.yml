@@ -18,7 +18,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        path: thisrepo
+        path: this-schmonz-repo
     - name: Checkout pkgsrc
       uses: actions/checkout@v4
       with:
@@ -28,21 +28,18 @@ jobs:
       run: |
         set -e
 
-        # smush these files into pkgsrc
-        cd thisrepo
-        pkgdir=$(basename $(bmake show-var VARNAME=PKGDIR))
-        category=$(grep CATEGORIES= Makefile | awk '{print $2}')
-        cd ..
-        rm -rf pkgsrc-current/${category}/${pkgdir}
-        mv thisrepo pkgsrc-current/${category}/${pkgdir}
-
         # bootstrap pkgsrc (XXX cache this)
-        cd pkgsrc-current/bootstrap
+        pushd pkgsrc-current/bootstrap
         sudo ./bootstrap --prefix /opt/pkg
         PATH=/opt/pkg/sbin:/opt/pkg/bin:$PATH
+        popd
+
+        # smush these files into pkgsrc
+        category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
+        mv this-schmonz-repo pkgsrc-current/${category}
 
         # generate package
-        cd ../${category}/${pkgdir}
+        pushd pkgsrc-current/${category}/this-schmonz-repo
         bmake package
         pkgfile=$(bmake show-var VARNAME=PKGFILE)
         ls -l ${pkgfile}
