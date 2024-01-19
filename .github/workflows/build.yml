@@ -25,19 +25,26 @@ jobs:
       matrix:
         osversion: ["12"] #, "11"
     steps:
-    - name: Cache something dumb
-      id: cache-something-dumb
-      uses: actions/cache@v4
+
+    - name: Restore and update something dumb
+      id: something-dumb-restore
+      uses: actions/cache/restore@v4
       with:
         path: ~/something-dumb
         key: ${{ runner.os }}-${{ matrix.osversion }}-something-dumb
-
-    - name: Update something dumb
       run: |
         set -e
         mkdir -p ~/something-dumb
         echo "this is less boring" >> ~/something-dumb/boring-file.txt
         cat ~/something-dumb/boring-file.txt
+
+    - name: Save something dumb
+      id: something-dumb-save
+      uses: actions/cache/save@v4
+      if: always()
+      with:
+        path: ~/something-dumb
+        key: ${{ steps.something-dumb-restore.outputs.cache-primary-key }}
 
     - name: Cache pkgsrc
       if: false
