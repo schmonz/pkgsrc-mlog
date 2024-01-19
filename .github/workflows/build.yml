@@ -33,6 +33,7 @@ jobs:
     - name: Checkout pkgsrc
       uses: actions/checkout@v4
       with:
+        repository: NetBSD/pkgsrc
         path: pkgsrc-current
 
     - name: Restore bootstrap
