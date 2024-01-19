@@ -17,30 +17,32 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        path: thisrepo
+    - name: Checkout pkgsrc
+      uses: actions/checkout@v4
+      with:
+        repository: NetBSD/pkgsrc
+        path: pkgsrc-current
     - name: Build and Package
       run: |
         set -e
 
-        # fetch pkgsrc (XXX cache this)
-        mkdir -p /var/tmp
-        pushd /var/tmp
-        git clone --depth=1 git@github.com:NetBSD/pkgsrc.git
-
-        # bootstrap pkgsrc (XXX cache this)
-        cd pkgsrc/bootstrap
-        sudo ./bootstrap --prefix /opt/pkg
-        PATH=/opt/pkg/sbin:/opt/pkg/bin:$PATH
-        popd
-
         # smush these files into pkgsrc
-        pkgdir=$(basename $(pwd))
+        cd thisrepo
+        pkgdir=$(basename $(bmake show-var VARNAME=PKGDIR))
         category=$(grep CATEGORIES= Makefile | awk '{print $2}')
         cd ..
-        rm -rf /var/tmp/pkgsrc/${category}/${pkgdir}
-        mv ${pkgdir} /var/tmp/pkgsrc/${category}
-        cd /var/tmp/pkgsrc/${category}/${pkgdir}
+        rm -rf pkgsrc-current/${category}/${pkgdir}
+        mv thisrepo pkgsrc-current/${category}/${pkgdir}
+
+        # bootstrap pkgsrc (XXX cache this)
+        cd pkgsrc-current/bootstrap
+        sudo ./bootstrap --prefix /opt/pkg
+        PATH=/opt/pkg/sbin:/opt/pkg/bin:$PATH
 
         # generate package
+        cd ../${category}/${pkgdir}
         bmake package
         pkgfile=$(bmake show-var VARNAME=PKGFILE)
         ls -l ${pkgfile}
