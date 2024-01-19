@@ -30,13 +30,18 @@ jobs:
     - name: Checkout package
       uses: actions/checkout@v4
       with:
-        path: ~/this-schmonz-repo
+        path: this-schmonz-repo
 
     - name: Checkout pkgsrc
       uses: actions/checkout@v4
       with:
         repository: NetBSD/pkgsrc
-        path: ~/pkgsrc-current
+        path: pkgsrc-current
+    - name: See what's what
+      run: |
+        echo "GITHUB_WORKSPACE = ${GITHUB_WORKSPACE}"
+        ls -l ${GITHUB_WORKSPACE}
+        false
 
     - name: Restore bootstrap
       id: bootstrap-restore
