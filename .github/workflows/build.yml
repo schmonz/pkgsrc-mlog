@@ -21,7 +21,7 @@ jobs:
       ${{ matrix.osversion }}
     runs-on: macos-${{ matrix.osversion }}
     strategy:
-      fail-fast: false
+      fail-fast: true	# false
       matrix:
         osversion: ["12"] #, "11"
     steps:
@@ -45,8 +45,13 @@ jobs:
           git pull
           popd
         else
-          git clone https://github.com/NetBSD/pkgsrc.git ~/pkgsrc-current
+          pushd ~
+          git clone https://github.com/NetBSD/pkgsrc.git pkgsrc-current
+          popd
         fi
+        echo "SCHMONZ: here's what's in ${GITHUB_WORKSPACE}"
+        ls -l
+        false
 
     - name: Save pkgsrc
       id: pkgsrc-save
@@ -110,8 +115,9 @@ jobs:
     - name: Pretend to publish package
       run: |
         set -e
-        echo "SCHMONZ: file to release is ${{ env.release_asset }}"
-        echo "SCHMONZ: version to release is ${{ env.release_version }}"
+        echo "PLATFORM: ${{ runner.os }} ${{ matrix.osversion }}"
+        echo "FILE: ${{ env.release_asset }}"
+        echo "VERSION: version ${{ env.release_version }}"
 
     - name: Publish package
       uses: softprops/action-gh-release@v1
