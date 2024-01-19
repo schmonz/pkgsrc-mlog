@@ -39,7 +39,7 @@ jobs:
       run: |
         set -e
         mkdir -p ~/something-dumb
-        echo "this is less boring" >> ~/something-dumb/boring-file.txt
+        echo "this is even less boring" >> ~/something-dumb/boring-file.txt
         cat ~/something-dumb/boring-file.txt
 
     - name: Save something dumb
