@@ -25,11 +25,26 @@ jobs:
       matrix:
         osversion: ["12"] #, "11"
     steps:
-    - name: Checkout pkgsrc
-      uses: actions/checkout@v4
+    - name: Cache pkgsrc
+      id: cache-pkgsrc
+      uses: actions/cache@v4
       with:
-        repository: NetBSD/pkgsrc
         path: pkgsrc-current
+        key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc
+
+    - name: Fetch pkgsrc
+      if: steps.cache-pkgsrc.outputs.cache-hit != 'true'
+      run: |
+        set -e
+        if [ -d pkgsrc-current ]; then
+          pushd pkgsrc-current
+          find distfiles -type f | xargs rm -f
+          find packages -type f | xargs rm -f
+          git pull
+          popd
+        else
+          git clone https://github.com/NetBSD/pkgsrc.git pkgsrc-current
+        fi
 
     - name: Cache pkgsrc bootstrap
       id: cache-pkgsrc-bootstrap
