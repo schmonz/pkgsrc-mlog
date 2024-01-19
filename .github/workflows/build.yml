@@ -50,7 +50,7 @@ jobs:
       id: cache-pkgsrc-bootstrap
       uses: actions/cache@v4
       with:
-        path: ${HOME}/pkg
+        path: ${GITHUB_WORKSPACE}/pkg
         key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-bootstrap
 
     - name: Build pkgsrc bootstrap
@@ -58,8 +58,8 @@ jobs:
       run: |
         set -e
         pushd pkgsrc-current/bootstrap
-        ./bootstrap --unprivileged
-        PATH=${HOME}/pkg/sbin:${HOME}/pkg/bin:${PATH}
+        ./bootstrap --unprivileged --prefix ${GITHUB_WORKSPACE}/pkg
+        PATH=${GITHUB_WORKSPACE}/pkg/sbin:${GITHUB_WORKSPACE}/pkg/bin:${PATH}
         cd ..
         ( cd */digest && bmake install )
         ( cd */nbpatch && bmake install )
@@ -73,7 +73,7 @@ jobs:
     - name: Build package
       run: |
         set -e
-        PATH=${HOME}/pkg/sbin:${HOME}/pkg/bin:${PATH}
+        PATH=${GITHUB_WORKSPACE}/pkg/sbin:${GITHUB_WORKSPACE}/pkg/bin:${PATH}
         category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
         mv this-schmonz-repo pkgsrc-current/${category}
         pushd pkgsrc-current/${category}/this-schmonz-repo
