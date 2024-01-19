@@ -40,6 +40,8 @@ jobs:
     - name: See what's what
       run: |
         echo "GITHUB_WORKSPACE = ${GITHUB_WORKSPACE}"
+        echo "HOME = ${HOME}"
+        echo "~ =" ~
         ls -l ${GITHUB_WORKSPACE}
         false
 
