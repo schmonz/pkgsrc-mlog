@@ -38,14 +38,14 @@ jobs:
       id: pkgsrc-fetch
       run: |
         set -e
-        if [ -d pkgsrc-current ]; then
-          pushd pkgsrc-current
+        if [ -d ~/pkgsrc-current ]; then
+          pushd ~/pkgsrc-current
           find distfiles -type f | xargs rm -f
           find packages -type f | xargs rm -f
           git pull
           popd
         else
-          git clone https://github.com/NetBSD/pkgsrc.git pkgsrc-current
+          git clone https://github.com/NetBSD/pkgsrc.git ~/pkgsrc-current
         fi
 
     - name: Save pkgsrc
@@ -68,13 +68,17 @@ jobs:
       id: bootstrap-build
       run: |
         set -e
-        pushd pkgsrc-current/bootstrap
-        ./bootstrap --unprivileged --prefix ~/pkg
-        PATH=~/pkg/sbin:~/pkg/bin:${PATH}
-        cd ..
-        ( cd */digest && bmake install )
-        ( cd */nbpatch && bmake install )
-        popd
+        if [ -d ~/pkg ]; then
+          echo "SCHMONZ: using previous bootstrap"
+        else
+          pushd ~/pkgsrc-current/bootstrap
+          ./bootstrap --unprivileged --prefix ~/pkg
+          PATH=~/pkg/sbin:~/pkg/bin:${PATH}
+          cd ..
+          ( cd */digest && bmake install )
+          ( cd */nbpatch && bmake install )
+          popd
+        fi
 
     - name: Save bootstrap
       id: bootstrap-save
@@ -94,8 +98,8 @@ jobs:
         set -e
         PATH=~/pkg/sbin:~/pkg/bin:${PATH}
         category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
-        mv this-schmonz-repo pkgsrc-current/${category}
-        pushd pkgsrc-current/${category}/this-schmonz-repo
+        mv this-schmonz-repo ~/pkgsrc-current/${category}
+        pushd ~/pkgsrc-current/${category}/this-schmonz-repo
         bmake package
 
         release_asset=$(bmake show-var VARNAME=PKGFILE)
