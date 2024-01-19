@@ -6,6 +6,9 @@ name: Build
 # - what's a good value for the cache key? (for now, an OS-specific constant!)
 # - how do I force cache avoidance? (when it's necessary to re-bootstrap for some reason)
 # - is it possible to share the cache across repos? (I have many packages)
+# - privileged would be nice
+#   - https://github.com/actions/toolkit/issues/946
+#   - https://github.com/actions/cache/pull/181
 
 on:
   push:
