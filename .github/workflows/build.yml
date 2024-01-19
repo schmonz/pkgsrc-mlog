@@ -35,7 +35,7 @@ jobs:
     - name: Update something dumb
       run: |
         set -e
-        mkdir ~/something-dumb
+        mkdir -p ~/something-dumb
         echo "this is less boring" >> ~/something-dumb/boring-file.txt
         cat ~/something-dumb/boring-file.txt
 
