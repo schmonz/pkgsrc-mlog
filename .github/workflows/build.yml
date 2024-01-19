@@ -26,12 +26,15 @@ jobs:
         osversion: ["12"] #, "11"
     steps:
 
-    - name: Restore and update something dumb
+    - name: Restore something dumb
       id: something-dumb-restore
       uses: actions/cache/restore@v4
       with:
         path: ~/something-dumb
         key: ${{ runner.os }}-${{ matrix.osversion }}-something-dumb
+
+    - name: Update something dumb
+      id: something-dumb-update
       run: |
         set -e
         mkdir -p ~/something-dumb
