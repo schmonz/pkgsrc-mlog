@@ -1,9 +1,6 @@
 name: Build
 
 # TODO:
-# - pkgsrc restore/update/save takes 3 minutes
-# - how long for a naive actions/checkout?
-#
 # - need privileged pkgsrc, so it's conceivable that releases would work for anyone
 #   - https://github.com/actions/toolkit/issues/946
 #   - https://github.com/actions/cache/pull/181
@@ -13,6 +10,7 @@ name: Build
 # - is it possible to share the cache across repos? (I have many packages)
 #
 # - publish releases?
+#   - only if all expected platforms pass the build?
 
 on:
   push:
@@ -29,12 +27,16 @@ jobs:
       matrix:
         osversion: ["12"] #, "11"
     steps:
+    - name: Checkout package
+      uses: actions/checkout@v4
+      with:
+        path: ~/this-schmonz-repo
 
     - name: Checkout pkgsrc
       uses: actions/checkout@v4
       with:
         repository: NetBSD/pkgsrc
-        path: pkgsrc-current
+        path: ~/pkgsrc-current
 
     - name: Restore bootstrap
       id: bootstrap-restore
@@ -68,17 +70,12 @@ jobs:
         path: ~/pkg
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
-    - name: Checkout package
-      uses: actions/checkout@v4
-      with:
-        path: this-schmonz-repo
-
     - name: Build package
       run: |
         set -e
         PATH=~/pkg/sbin:~/pkg/bin:${PATH}
-        category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
-        mv this-schmonz-repo ~/pkgsrc-current/${category}
+        category=$(grep CATEGORIES= ~/this-schmonz-repo/Makefile | awk '{print $2}')
+        mv ~/this-schmonz-repo ~/pkgsrc-current/${category}
         pushd ~/pkgsrc-current/${category}/this-schmonz-repo
         bmake package
 
