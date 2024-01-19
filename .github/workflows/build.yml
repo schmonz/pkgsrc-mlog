@@ -1,6 +1,9 @@
 name: Build
 
 # TODO:
+# - pkgsrc restore/update/save takes 3 minutes
+# - how long for a naive actions/checkout?
+#
 # - need privileged pkgsrc, so it's conceivable that releases would work for anyone
 #   - https://github.com/actions/toolkit/issues/946
 #   - https://github.com/actions/cache/pull/181
@@ -27,43 +30,10 @@ jobs:
         osversion: ["12"] #, "11"
     steps:
 
-    - name: Restore pkgsrc
-      id: pkgsrc-restore
-      uses: actions/cache/restore@v4
+    - name: Checkout pkgsrc
+      uses: actions/checkout@v4
       with:
-        path: /var/tmp/pkgsrc-current
-        key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-${{ github.run_id }}
-        restore-keys: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-
-
-    - name: Fetch pkgsrc
-      id: pkgsrc-fetch
-      run: |
-        set -e
-        if [ -d /var/tmp/pkgsrc-current ]; then
-          echo "SCHMONZ: updating pkgsrc"
-          pushd /var/tmp/pkgsrc-current
-          find distfiles -type f | xargs rm -f
-          find packages -type f | xargs rm -f
-          git pull
-          popd
-        else
-          echo "SCHMONZ: fetching pkgsrc"
-          pushd /var/tmp
-          git clone https://github.com/NetBSD/pkgsrc.git pkgsrc-current
-          popd
-        fi
-        echo "SCHMONZ: here's what's in /var/tmp/pkgsrc-current"
-        ls -l /var/tmp/pkgsrc-current
-        echo "SCHMONZ: here's what's in ${GITHUB_WORKSPACE}"
-        ls -l ${GITHUB_WORKSPACE}
-
-    - name: Save pkgsrc
-      id: pkgsrc-save
-      uses: actions/cache/save@v4
-      if: always()
-      with:
-        path: /var/tmp/pkgsrc-current
-        key: ${{ steps.pkgsrc-restore.outputs.cache-primary-key }}
+        path: pkgsrc-current
 
     - name: Restore bootstrap
       id: bootstrap-restore
@@ -80,7 +50,7 @@ jobs:
         if [ -d ~/pkg ]; then
           echo "SCHMONZ: using previous bootstrap"
         else
-          pushd /var/tmp/pkgsrc-current/bootstrap
+          pushd ~/pkgsrc-current/bootstrap
           ./bootstrap --unprivileged --prefix ~/pkg
           PATH=~/pkg/sbin:~/pkg/bin:${PATH}
           cd ..
@@ -107,15 +77,15 @@ jobs:
         set -e
         PATH=~/pkg/sbin:~/pkg/bin:${PATH}
         category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
-        mv this-schmonz-repo /var/tmp/pkgsrc-current/${category}
-        pushd /var/tmp/pkgsrc-current/${category}/this-schmonz-repo
+        mv this-schmonz-repo ~/pkgsrc-current/${category}
+        pushd ~/pkgsrc-current/${category}/this-schmonz-repo
         bmake package
 
         release_version=$(bmake show-var VARNAME=PKGVERSION)
         mv $(bmake show-var VARNAME=PKGFILE) ..
         cd ..
         for i in *.tgz; do
-          mv $i ${{ runner.os }}-${{ matrix.osversion }}-$i
+          mv $i ${{ runner.os }}-${{ matrix.osversion }}-unprivileged-$i
         done
         release_asset=$(echo *.tgz)
         echo "release_asset=${release_asset}" >> "${GITHUB_ENV}"
