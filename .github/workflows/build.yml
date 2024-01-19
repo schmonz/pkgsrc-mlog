@@ -29,7 +29,7 @@ jobs:
       id: cache-pkgsrc
       uses: actions/cache@v4
       with:
-        path: ${GITHUB_WORKSPACE}/pkgsrc-current
+        path: ~/pkgsrc-current
         key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc
 
     - name: Fetch pkgsrc
@@ -50,7 +50,7 @@ jobs:
       id: cache-pkgsrc-bootstrap
       uses: actions/cache@v4
       with:
-        path: ${GITHUB_WORKSPACE}/pkg
+        path: ~/pkg
         key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-bootstrap
 
     - name: Build pkgsrc bootstrap
@@ -58,8 +58,8 @@ jobs:
       run: |
         set -e
         pushd pkgsrc-current/bootstrap
-        ./bootstrap --unprivileged --prefix ${GITHUB_WORKSPACE}/pkg
-        PATH=${GITHUB_WORKSPACE}/pkg/sbin:${GITHUB_WORKSPACE}/pkg/bin:${PATH}
+        ./bootstrap --unprivileged --prefix ~/pkg
+        PATH=~/pkg/sbin:~/pkg/bin:${PATH}
         cd ..
         ( cd */digest && bmake install )
         ( cd */nbpatch && bmake install )
@@ -73,14 +73,26 @@ jobs:
     - name: Build package
       run: |
         set -e
-        PATH=${GITHUB_WORKSPACE}/pkg/sbin:${GITHUB_WORKSPACE}/pkg/bin:${PATH}
+        PATH=~/pkg/sbin:~/pkg/bin:${PATH}
         category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
         mv this-schmonz-repo pkgsrc-current/${category}
         pushd pkgsrc-current/${category}/this-schmonz-repo
         bmake package
-        pkgfile=$(bmake show-var VARNAME=PKGFILE)
-        ls -l ${pkgfile}
-        pkg_info -L ${pkgfile}
 
-        # publish release
-        # XXX how?
+        release_asset=$(bmake show-var VARNAME=PKGFILE)
+        echo "release_asset=${release_asset}" >> "${GITHUB_ENV}"
+        release_version=$(bmake show-var VARNAME=PKGVERSION)
+        echo "release_version=${release_version}" >> "${GITHUB_ENV}"
+
+    - name: Pretend to publish package
+      run: |
+        set -e
+        echo "SCHMONZ: file to release is ${{ env.release_asset }}"
+        echo "SCHMONZ: version to release is ${{ env.release_version }}"
+
+    - name: Publish package
+      uses: softprops/action-gh-release@v1
+      if: false
+      with:
+        files: ${{ env.release_asset }}
+        name: ${{ env.release_version }}
