@@ -22,7 +22,7 @@ jobs:
         set -e
 
         # fetch pkgsrc (XXX cache this)
-        mkdir /var/tmp
+        mkdir -p /var/tmp
         pushd /var/tmp
         git clone --depth=1 git@github.com:NetBSD/pkgsrc.git
 
