@@ -26,40 +26,16 @@ jobs:
         osversion: ["12"] #, "11"
     steps:
 
-    - name: Restore something dumb
-      id: something-dumb-restore
+    - name: Restore pkgsrc
+      id: pkgsrc-restore
       uses: actions/cache/restore@v4
       with:
-        path: ~/something-dumb
-        key: ${{ runner.os }}-${{ matrix.osversion }}-something-dumb-${{ github.run_id }}
-        restore-keys: ${{ runner.os }}-${{ matrix.osversion }}-something-dumb-
-
-    - name: Update something dumb
-      id: something-dumb-update
-      run: |
-        set -e
-        mkdir -p ~/something-dumb
-        echo "this is even less boring" >> ~/something-dumb/boring-file.txt
-        cat ~/something-dumb/boring-file.txt
-
-    - name: Save something dumb
-      id: something-dumb-save
-      uses: actions/cache/save@v4
-      if: always()
-      with:
-        path: ~/something-dumb
-        key: ${{ steps.something-dumb-restore.outputs.cache-primary-key }}
-
-    - name: Cache pkgsrc
-      if: false
-      id: cache-pkgsrc
-      uses: actions/cache@v4
-      with:
         path: ~/pkgsrc-current
-        key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc
+        key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-${{ github.run_id }}
+        restore-keys: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-
 
     - name: Fetch pkgsrc
-      if: false && steps.cache-pkgsrc.outputs.cache-hit != 'true'
+      id: pkgsrc-fetch
       run: |
         set -e
         if [ -d pkgsrc-current ]; then
@@ -72,16 +48,24 @@ jobs:
           git clone https://github.com/NetBSD/pkgsrc.git pkgsrc-current
         fi
 
-    - name: Cache pkgsrc bootstrap
-      if: false
-      id: cache-pkgsrc-bootstrap
-      uses: actions/cache@v4
+    - name: Save pkgsrc
+      id: pkgsrc-save
+      uses: actions/cache/save@v4
+      if: always()
+      with:
+        path: ~/pkgsrc-current
+        key: ${{ steps.pkgsrc-restore.outputs.cache-primary-key }}
+
+    - name: Restore bootstrap
+      id: bootstrap-restore
+      uses: actions/cache/restore@v4
       with:
         path: ~/pkg
-        key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-bootstrap
+        key: ${{ runner.os }}-${{ matrix.osversion }}-bootstrap-${{ github.run_id }}
+        restore-keys: ${{ runner.os }}-${{ matrix.osversion }}-bootstrap-
 
-    - name: Build pkgsrc bootstrap
-      if: false && steps.cache-pkgsrc-bootstrap.outputs.cache-hit != 'true'
+    - name: Build bootstrap
+      id: bootstrap-build
       run: |
         set -e
         pushd pkgsrc-current/bootstrap
@@ -92,14 +76,20 @@ jobs:
         ( cd */nbpatch && bmake install )
         popd
 
+    - name: Save bootstrap
+      id: bootstrap-save
+      uses: actions/cache/save@v4
+      if: always()
+      with:
+        path: ~/pkg
+        key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
+
     - name: Checkout package
       uses: actions/checkout@v4
-      if: false
       with:
         path: this-schmonz-repo
 
     - name: Build package
-      if: false
       run: |
         set -e
         PATH=~/pkg/sbin:~/pkg/bin:${PATH}
@@ -114,7 +104,6 @@ jobs:
         echo "release_version=${release_version}" >> "${GITHUB_ENV}"
 
     - name: Pretend to publish package
-      if: false
       run: |
         set -e
         echo "SCHMONZ: file to release is ${{ env.release_asset }}"
