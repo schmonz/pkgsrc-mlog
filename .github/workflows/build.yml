@@ -33,7 +33,6 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.osversion }}-something-dumb
 
     - name: Update something dumb
-      if: steps.cache-something-dumb.outputs.cache-hit != 'true'
       run: |
         set -e
         mkdir ~/something-dumb
