@@ -25,7 +25,23 @@ jobs:
       matrix:
         osversion: ["12"] #, "11"
     steps:
+    - name: Cache something dumb
+      id: cache-something-dumb
+      uses: actions/cache@v4
+      with:
+        path: ~/something-dumb
+        key: ${{ runner.os }}-${{ matrix.osversion }}-something-dumb
+
+    - name: Update something dumb
+      if: steps.cache-something-dumb.outputs.cache-hit != 'true'
+      run: |
+        set -e
+        mkdir ~/something-dumb
+        echo "this is boring" >> ~/something-dumb/boring-file.txt
+        cat ~/something-dumb/boring-file.txt
+
     - name: Cache pkgsrc
+      if: false
       id: cache-pkgsrc
       uses: actions/cache@v4
       with:
@@ -33,7 +49,7 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc
 
     - name: Fetch pkgsrc
-      if: steps.cache-pkgsrc.outputs.cache-hit != 'true'
+      if: false && steps.cache-pkgsrc.outputs.cache-hit != 'true'
       run: |
         set -e
         if [ -d pkgsrc-current ]; then
@@ -47,6 +63,7 @@ jobs:
         fi
 
     - name: Cache pkgsrc bootstrap
+      if: false
       id: cache-pkgsrc-bootstrap
       uses: actions/cache@v4
       with:
@@ -54,7 +71,7 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-bootstrap
 
     - name: Build pkgsrc bootstrap
-      if: steps.cache-pkgsrc-bootstrap.outputs.cache-hit != 'true'
+      if: false && steps.cache-pkgsrc-bootstrap.outputs.cache-hit != 'true'
       run: |
         set -e
         pushd pkgsrc-current/bootstrap
@@ -67,10 +84,12 @@ jobs:
 
     - name: Checkout package
       uses: actions/checkout@v4
+      if: false
       with:
         path: this-schmonz-repo
 
     - name: Build package
+      if: false
       run: |
         set -e
         PATH=~/pkg/sbin:~/pkg/bin:${PATH}
@@ -85,6 +104,7 @@ jobs:
         echo "release_version=${release_version}" >> "${GITHUB_ENV}"
 
     - name: Pretend to publish package
+      if: false
       run: |
         set -e
         echo "SCHMONZ: file to release is ${{ env.release_asset }}"
