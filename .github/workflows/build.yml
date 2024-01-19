@@ -42,7 +42,7 @@ jobs:
       id: bootstrap-restore
       uses: actions/cache/restore@v4
       with:
-        path: ~/pkg
+        path: ${HOME}/pkg
         key: ${{ runner.os }}-${{ matrix.osversion }}-bootstrap-${{ github.run_id }}
         restore-keys: ${{ runner.os }}-${{ matrix.osversion }}-bootstrap-
 
@@ -50,12 +50,12 @@ jobs:
       id: bootstrap-build
       run: |
         set -e
-        if [ -d ~/pkg ]; then
+        if [ -d ${HOME}/pkg ]; then
           echo "SCHMONZ: using previous bootstrap"
         else
           pushd ${GITHUB_WORKSPACE}/pkgsrc-current/bootstrap
-          ./bootstrap --unprivileged --prefix ~/pkg
-          PATH=~/pkg/sbin:~/pkg/bin:${PATH}
+          ./bootstrap --unprivileged --prefix ${HOME}/pkg
+          PATH=${HOME}/pkg/sbin:${HOME}/pkg/bin:${PATH}
           cd ..
           ( cd */digest && bmake install )
           ( cd */nbpatch && bmake install )
@@ -67,13 +67,13 @@ jobs:
       uses: actions/cache/save@v4
       if: always()
       with:
-        path: ~/pkg
+        path: ${HOME}/pkg
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Build package
       run: |
         set -e
-        PATH=~/pkg/sbin:~/pkg/bin:${PATH}
+        PATH=${HOME}/pkg/sbin:${HOME}/pkg/bin:${PATH}
         category=$(grep CATEGORIES= ${GITHUB_WORKSPACE}/this-schmonz-repo/Makefile | awk '{print $2}')
         mv ${GITHUB_WORKSPACE}/this-schmonz-repo ${GITHUB_WORKSPACE}/pkgsrc-current/${category}
         pushd ${GITHUB_WORKSPACE}/pkgsrc-current/${category}/this-schmonz-repo
