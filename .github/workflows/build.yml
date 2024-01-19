@@ -51,7 +51,7 @@ jobs:
       run: |
         set -e
         if [ ! -d ~/pkg ]; then
-          pushd ${GITHUB_WORKSPACE}/pkgsrc-current/bootstrap
+          pushd pkgsrc-current/bootstrap
           ./bootstrap --unprivileged --prefix ~/pkg
           PATH=~/pkg/sbin:~/pkg/bin:${PATH}
           cd ..
@@ -72,7 +72,6 @@ jobs:
       run: |
         set -e
         PATH=~/pkg/sbin:~/pkg/bin:${PATH}
-        pushd ${GITHUB_WORKSPACE}
         category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
         mv this-schmonz-repo pkgsrc-current/${category}
         cd pkgsrc-current/${category}/this-schmonz-repo
