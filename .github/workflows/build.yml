@@ -30,7 +30,7 @@ jobs:
       id: pkgsrc-restore
       uses: actions/cache/restore@v4
       with:
-        path: ~/pkgsrc-current
+        path: /var/tmp/pkgsrc-current-shit
         key: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-${{ github.run_id }}
         restore-keys: ${{ runner.os }}-${{ matrix.osversion }}-pkgsrc-
 
@@ -38,19 +38,27 @@ jobs:
       id: pkgsrc-fetch
       run: |
         set -e
-        if [ -d ~/pkgsrc-current ]; then
-          pushd ~/pkgsrc-current
-          find distfiles -type f | xargs rm -f
-          find packages -type f | xargs rm -f
-          git pull
+        if [ -d /var/tmp/pkgsrc-current-shit ]; then
+          echo "SCHMONZ: we have pkgsrc already"
+          pushd /var/tmp/pkgsrc-current-shit
+          #find distfiles -type f | xargs rm -f
+          #find packages -type f | xargs rm -f
+          #git pull
+          git log
           popd
         else
-          pushd ~
-          git clone https://github.com/NetBSD/pkgsrc.git pkgsrc-current
+          echo "SCHMONZ: we gotta get pkgsrc"
+          pushd /var/tmp
+          git clone --depth=1 https://github.com/NetBSD/pkgsrc.git pkgsrc-current-shit
+          cd pkgsrc-current-shit
+          git log
           popd
         fi
-        echo "SCHMONZ: here's what's in ${GITHUB_WORKSPACE}"
-        ls -l
+        echo "SCHMONZ: here's what's in /var/tmp/pkgsrc-current-shit"
+        ls -l /var/tmp/pkgsrc-current-shit
+        echo "SCHMONZ: here's what's in ${GITHUB_WORKSPACE} so far"
+        ls -l ${GITHUB_WORKSPACE}
+
         false
 
     - name: Save pkgsrc
@@ -58,7 +66,7 @@ jobs:
       uses: actions/cache/save@v4
       if: always()
       with:
-        path: ~/pkgsrc-current
+        path: /var/tmp/pkgsrc-current-shit
         key: ${{ steps.pkgsrc-restore.outputs.cache-primary-key }}
 
     - name: Restore bootstrap
@@ -76,7 +84,7 @@ jobs:
         if [ -d ~/pkg ]; then
           echo "SCHMONZ: using previous bootstrap"
         else
-          pushd ~/pkgsrc-current/bootstrap
+          pushd /var/tmp/pkgsrc-current-shit/bootstrap
           ./bootstrap --unprivileged --prefix ~/pkg
           PATH=~/pkg/sbin:~/pkg/bin:${PATH}
           cd ..
@@ -103,8 +111,8 @@ jobs:
         set -e
         PATH=~/pkg/sbin:~/pkg/bin:${PATH}
         category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
-        mv this-schmonz-repo ~/pkgsrc-current/${category}
-        pushd ~/pkgsrc-current/${category}/this-schmonz-repo
+        mv this-schmonz-repo /var/tmp/pkgsrc-current-shit/${category}
+        pushd /var/tmp/pkgsrc-current-shit/${category}/this-schmonz-repo
         bmake package
 
         release_asset=$(bmake show-var VARNAME=PKGFILE)
