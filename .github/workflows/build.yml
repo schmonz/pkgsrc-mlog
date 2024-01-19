@@ -37,13 +37,6 @@ jobs:
       with:
         repository: NetBSD/pkgsrc
         path: pkgsrc-current
-    - name: See what's what
-      run: |
-        echo "GITHUB_WORKSPACE = ${GITHUB_WORKSPACE}"
-        echo "HOME = ${HOME}"
-        echo "~ =" ~
-        ls -l ${GITHUB_WORKSPACE}
-        false
 
     - name: Restore bootstrap
       id: bootstrap-restore
@@ -60,7 +53,7 @@ jobs:
         if [ -d ~/pkg ]; then
           echo "SCHMONZ: using previous bootstrap"
         else
-          pushd ~/pkgsrc-current/bootstrap
+          pushd ${GITHUB_WORKSPACE}/pkgsrc-current/bootstrap
           ./bootstrap --unprivileged --prefix ~/pkg
           PATH=~/pkg/sbin:~/pkg/bin:${PATH}
           cd ..
@@ -81,9 +74,9 @@ jobs:
       run: |
         set -e
         PATH=~/pkg/sbin:~/pkg/bin:${PATH}
-        category=$(grep CATEGORIES= ~/this-schmonz-repo/Makefile | awk '{print $2}')
-        mv ~/this-schmonz-repo ~/pkgsrc-current/${category}
-        pushd ~/pkgsrc-current/${category}/this-schmonz-repo
+        category=$(grep CATEGORIES= ${GITHUB_WORKSPACE}/this-schmonz-repo/Makefile | awk '{print $2}')
+        mv ${GITHUB_WORKSPACE}/this-schmonz-repo ${GITHUB_WORKSPACE}/pkgsrc-current/${category}
+        pushd ${GITHUB_WORKSPACE}/pkgsrc-current/${category}/this-schmonz-repo
         bmake package
 
         release_version=$(bmake show-var VARNAME=PKGVERSION)
