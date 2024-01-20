@@ -46,13 +46,10 @@ jobs:
           echo "OPSYS = $(uname -a)"
 
           # 20240119 schmonz: avoid "pwd: getcwd() failed: Bad file descriptor"
-          cd /
-          echo "PWD = $(pwd)"
-          cd "${GITHUB_WORKSPACE}"
-          echo "PWD = $(pwd)"
+          cd /root
           ls -l
-          echo "HOME = ${HOME}"
-          ls -l "${HOME}"
+          cd work
+          ls -l
           if [ ! -d /opt/pkg ]; then
             unset PKG_PATH
             cd pkgsrc-current/bootstrap
