@@ -1,0 +1,101 @@
+name: VM
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  netbsd:
+    name: >
+      NetBSD
+      ${{ matrix.osversion }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        osversion: ["9.3"]
+    steps:
+    - name: Checkout package
+      uses: actions/checkout@v4
+      with:
+        path: this-schmonz-repo
+
+    - name: Checkout pkgsrc
+      uses: actions/checkout@v4
+      with:
+        repository: NetBSD/pkgsrc
+        path: pkgsrc-current
+
+    - name: Restore bootstrap
+      id: bootstrap-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/pkg
+        key: ${{ runner.os }}-${{ matrix.osversion }}-bootstrap-${{ github.run_id }}
+        restore-keys: ${{ runner.os }}-${{ matrix.osversion }}-bootstrap-
+
+    - name: Build bootstrap
+      id: bootstrap-build
+      uses: vmactions/netbsd-vm@1
+      with:
+        release: ${{ matrix.osversion }}
+        usesh: true
+        run: |
+          set -e
+          if [ ! -d ~/pkg ]; then
+            pushd pkgsrc-current/bootstrap
+            ./bootstrap --unprivileged --prefix ~/pkg
+            #PATH=~/pkg/sbin:~/pkg/bin:${PATH}
+            #cd ..
+            #( cd */digest && bmake install )
+            #( cd */nbpatch && bmake install )
+            popd
+          fi
+
+    - name: Save bootstrap
+      id: bootstrap-save
+      uses: actions/cache/save@v4
+      if: always()
+      with:
+        path: ~/pkg
+        key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
+
+    - name: Build package
+      uses: vmactions/netbsd-vm@1
+      with:
+        release: ${{ matrix.osversion }}
+        usesh: true
+        run: |
+          set -e
+          PATH=~/pkg/sbin:~/pkg/bin:${PATH}
+          category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
+          mv this-schmonz-repo pkgsrc-current/${category}
+          cd pkgsrc-current/${category}/this-schmonz-repo
+          bmake package
+
+          mkdir ~/release-contents
+
+          release_version=$(bmake show-var VARNAME=PKGVERSION)
+
+          mv $(bmake show-var VARNAME=PKGFILE) ~/release-contents
+          cd ~/release-contents
+          for i in *.tgz; do
+            mv $i NetBSD-${{ matrix.osversion }}-unprivileged-$i
+          done
+          release_asset=$(echo *.tgz)
+
+          echo "release_version=${release_version}" >> "${GITHUB_ENV}"
+          echo "release_asset=~/release-contents/${release_asset}" >> "${GITHUB_ENV}"
+
+    - name: Pretend to publish package
+      run: |
+        set -e
+        echo "VERSION: version ${{ env.release_version }}"
+        echo "FILE: ${{ env.release_asset }}"
+
+    - name: Publish package
+      uses: softprops/action-gh-release@v1
+      if: false
+      with:
+        files: ${{ env.release_asset }}
+        name: ${{ env.release_version }}
