@@ -48,6 +48,8 @@ jobs:
           ls -l
           echo "GITHUB_WORKSPACE = ${GITHUB_WORKSPACE}"
           ls -l "${GITHUB_WORKSPACE}"
+          echo "HOME = ${HOME}"
+          ls -l "${HOME}"
           if [ ! -d ~/pkg ]; then
             cd pkgsrc-current/bootstrap
             ./bootstrap --unprivileged --prefix ~/pkg
