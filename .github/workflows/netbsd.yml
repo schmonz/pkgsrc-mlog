@@ -46,10 +46,10 @@ jobs:
           echo "OPSYS = $(uname -a)"
 
           # 20240119 schmonz: avoid "pwd: getcwd() failed: Bad file descriptor"
-          cd /root
+          echo "SCHMONZ 1"
+          cd /home/runner/work
           ls -l
-          cd work
-          ls -l
+          echo "SCHMONZ 2"
           if [ ! -d /opt/pkg ]; then
             unset PKG_PATH
             cd pkgsrc-current/bootstrap
