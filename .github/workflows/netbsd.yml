@@ -30,16 +30,17 @@ jobs:
       id: bootstrap-restore
       uses: actions/cache/restore@v4
       with:
-        path: ~/pkg
+        path: /opt/pkg
         key: NetBSD-${{ matrix.osversion }}-bootstrap-${{ github.run_id }}
         restore-keys: NetBSD-${{ matrix.osversion }}-bootstrap-
 
-    - name: Build bootstrap
+    - name: Build bootstrap and packages
       id: bootstrap-build
       uses: vmactions/netbsd-vm@v1
       with:
         release: ${{ matrix.osversion }}
         usesh: true
+        # sync: sshfs
         run: |
           set -e
           echo "OPSYS = $(uname -a)"
@@ -49,50 +50,41 @@ jobs:
           ls -l "${GITHUB_WORKSPACE}"
           echo "HOME = ${HOME}"
           ls -l "${HOME}"
-          if [ ! -d ~/pkg ]; then
+          if [ ! -d /opt/pkg ]; then
             unset PKG_PATH
             cd pkgsrc-current/bootstrap
-            ./bootstrap --unprivileged --prefix ~/pkg
-            #PATH=~/pkg/sbin:~/pkg/bin:${PATH}
-            #cd ..
+            ./bootstrap --prefix /opt/pkg
+            PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
+            cd ../..
             #( cd */digest && bmake install )
             #( cd */nbpatch && bmake install )
           fi
-
-    - name: Save bootstrap
-      id: bootstrap-save
-      uses: actions/cache/save@v4
-      if: always()
-      with:
-        path: ~/pkg
-        key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
-
-    - name: Build package
-      uses: vmactions/netbsd-vm@v1
-      with:
-        release: ${{ matrix.osversion }}
-        usesh: true
-        run: |
-          set -e
-          PATH=~/pkg/sbin:~/pkg/bin:${PATH}
           category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
           mv this-schmonz-repo pkgsrc-current/${category}
           cd pkgsrc-current/${category}/this-schmonz-repo
           bmake package
 
-          mkdir ~/release-contents
+          mkdir ${GITHUB_WORKSPACE}/release-contents
 
           release_version=$(bmake show-var VARNAME=PKGVERSION)
 
-          mv $(bmake show-var VARNAME=PKGFILE) ~/release-contents
-          cd ~/release-contents
+          mv $(bmake show-var VARNAME=PKGFILE) ${GITHUB_WORKSPACE}/release-contents
+          cd ${GITHUB_WORKSPACE}/release-contents
           for i in *.tgz; do
             mv $i NetBSD-${{ matrix.osversion }}-unprivileged-$i
           done
           release_asset=$(echo *.tgz)
 
           echo "release_version=${release_version}" >> "${GITHUB_ENV}"
-          echo "release_asset=~/release-contents/${release_asset}" >> "${GITHUB_ENV}"
+          echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
+
+    - name: Save bootstrap
+      id: bootstrap-save
+      uses: actions/cache/save@v4
+      if: always()
+      with:
+        path: /opt/pkg
+        key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Pretend to publish package
       run: |
