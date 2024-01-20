@@ -40,7 +40,6 @@ jobs:
       with:
         release: ${{ matrix.osversion }}
         usesh: true
-        sync: sshfs
         run: |
           set -e
           echo "OPSYS = $(uname -a)"
