@@ -40,7 +40,7 @@ jobs:
       with:
         release: ${{ matrix.osversion }}
         usesh: true
-        # sync: sshfs
+        sync: sshfs
         run: |
           set -e
           echo "OPSYS = $(uname -a)"
@@ -54,11 +54,10 @@ jobs:
             unset PKG_PATH
             cd pkgsrc-current/bootstrap
             ./bootstrap --prefix /opt/pkg
-            PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
+            ./cleanup
             cd ../..
-            #( cd */digest && bmake install )
-            #( cd */nbpatch && bmake install )
           fi
+          PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
           category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
           mv this-schmonz-repo pkgsrc-current/${category}
           cd pkgsrc-current/${category}/this-schmonz-repo
