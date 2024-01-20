@@ -44,13 +44,12 @@ jobs:
         run: |
           set -e
           if [ ! -d ~/pkg ]; then
-            pushd pkgsrc-current/bootstrap
+            cd pkgsrc-current/bootstrap
             ./bootstrap --unprivileged --prefix ~/pkg
             #PATH=~/pkg/sbin:~/pkg/bin:${PATH}
             #cd ..
             #( cd */digest && bmake install )
             #( cd */nbpatch && bmake install )
-            popd
           fi
 
     - name: Save bootstrap
