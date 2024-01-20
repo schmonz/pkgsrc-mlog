@@ -36,7 +36,7 @@ jobs:
 
     - name: Build bootstrap
       id: bootstrap-build
-      uses: vmactions/netbsd-vm@1
+      uses: vmactions/netbsd-vm@v1
       with:
         release: ${{ matrix.osversion }}
         usesh: true
@@ -61,7 +61,7 @@ jobs:
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Build package
-      uses: vmactions/netbsd-vm@1
+      uses: vmactions/netbsd-vm@v1
       with:
         release: ${{ matrix.osversion }}
         usesh: true
