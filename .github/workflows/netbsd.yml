@@ -43,6 +43,11 @@ jobs:
         sync: sshfs
         run: |
           set -e
+          echo "OPSYS = $(uname -a)"
+          echo "PWD = $(pwd)"
+          ls -l
+          echo "GITHUB_WORKSPACE = ${GITHUB_WORKSPACE}"
+          ls -l "${GITHUB_WORKSPACE}"
           if [ ! -d ~/pkg ]; then
             cd pkgsrc-current/bootstrap
             ./bootstrap --unprivileged --prefix ~/pkg
