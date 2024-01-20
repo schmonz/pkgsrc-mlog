@@ -44,10 +44,13 @@ jobs:
         run: |
           set -e
           echo "OPSYS = $(uname -a)"
+
+          # 20240119 schmonz: avoid "pwd: getcwd() failed: Bad file descriptor"
+          cd /
+          echo "PWD = $(pwd)"
+          cd "${GITHUB_WORKSPACE}"
           echo "PWD = $(pwd)"
           ls -l
-          echo "GITHUB_WORKSPACE = ${GITHUB_WORKSPACE}"
-          ls -l "${GITHUB_WORKSPACE}"
           echo "HOME = ${HOME}"
           ls -l "${HOME}"
           if [ ! -d /opt/pkg ]; then
