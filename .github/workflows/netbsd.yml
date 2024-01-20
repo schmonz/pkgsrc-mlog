@@ -31,8 +31,8 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ~/pkg
-        key: ${{ runner.os }}-${{ matrix.osversion }}-bootstrap-${{ github.run_id }}
-        restore-keys: ${{ runner.os }}-${{ matrix.osversion }}-bootstrap-
+        key: NetBSD-${{ matrix.osversion }}-bootstrap-${{ github.run_id }}
+        restore-keys: NetBSD-${{ matrix.osversion }}-bootstrap-
 
     - name: Build bootstrap
       id: bootstrap-build
@@ -40,6 +40,7 @@ jobs:
       with:
         release: ${{ matrix.osversion }}
         usesh: true
+        sync: sshfs
         run: |
           set -e
           if [ ! -d ~/pkg ]; then
