@@ -50,6 +50,7 @@ jobs:
           echo "HOME = ${HOME}"
           ls -l "${HOME}"
           if [ ! -d ~/pkg ]; then
+            unset PKG_PATH
             cd pkgsrc-current/bootstrap
             ./bootstrap --unprivileged --prefix ~/pkg
             #PATH=~/pkg/sbin:~/pkg/bin:${PATH}
