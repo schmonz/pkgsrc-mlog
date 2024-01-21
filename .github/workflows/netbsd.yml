@@ -29,9 +29,10 @@ jobs:
       with:
         release: ${{ matrix.osversion }}
         usesh: true
-          #sync: sshfs
+        prepare: |
+          pkg_add git-base
         run: |
-          #set -e
+          set -e
 
           # $HOME is /root
           # /root/work -> /home/runner/work
@@ -40,12 +41,6 @@ jobs:
           # host GITHUB_WORKSPACE = /home/runner/work/pkgsrc-mlog/pkgsrc-mlog
           # does actions/checkout affect the VM? notqmail's seems to
 
-          #cd /home/runner/work
-          #find . -type d
-
-          #exit 77
-          # without sshfs, $GITHUB_WORKSPACE looks good
-          #
           # sh: cannot create /home/runner/work/_temp/_runner_file_commands/set_env_3bfecdc6-e85b-47d7-9bfc-f27cdd564145: directory nonexistent
           mkdir -p /home/runner/work/_temp/_runner_file_commands
 
