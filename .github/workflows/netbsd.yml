@@ -49,9 +49,8 @@ jobs:
           # where is everything from the host GITHUB_WORKSPACE?
           # host GITHUB_WORKSPACE = /home/runner/work/pkgsrc-mlog/pkgsrc-mlog
 
-          /sbin/mount -v
-
-          find /home/runner/work -type d
+          cd /home/runner/work
+          find . -type d
 
           exit 77
 
