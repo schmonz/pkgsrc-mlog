@@ -42,14 +42,24 @@ jobs:
         usesh: true
         sync: sshfs
         run: |
-          set -e
-          echo "OPSYS = $(uname -a)"
+          #set -e
+          echo "SCHMONZ 0: $(pwd)"
+          ls -l
+          echo
 
           # 20240119 schmonz: avoid "pwd: getcwd() failed: Bad file descriptor"
-          echo "SCHMONZ 1"
           cd /home/runner/work
+          echo "SCHMONZ 1: $(pwd)"
           ls -l
-          echo "SCHMONZ 2"
+          echo
+
+          cd ~
+          echo "SCHMONZ 2: $(pwd)"
+          ls -l
+          echo
+
+          exit 77
+
           if [ ! -d /opt/pkg ]; then
             unset PKG_PATH
             cd pkgsrc-current/bootstrap
@@ -63,6 +73,7 @@ jobs:
           cd pkgsrc-current/${category}/this-schmonz-repo
           bmake package
 
+          # XXX WTF is GITHUB_WORKSPACE inside the VM
           mkdir ${GITHUB_WORKSPACE}/release-contents
 
           release_version=$(bmake show-var VARNAME=PKGVERSION)
