@@ -39,7 +39,7 @@ jobs:
       with:
         release: ${{ matrix.osversion }}
         usesh: true
-        sync: sshfs
+          #sync: sshfs
         run: |
           #set -e
 
@@ -50,10 +50,11 @@ jobs:
           # host GITHUB_WORKSPACE = /home/runner/work/pkgsrc-mlog/pkgsrc-mlog
           # does actions/checkout affect the VM? notqmail's seems to
 
-          cd /home/runner/work
-          find . -type d
+          #cd /home/runner/work
+          #find . -type d
 
-          exit 77
+          #exit 77
+          # seems like without sshfs, $GITHUB_WORKSPACE might work!
 
           if [ ! -d /opt/pkg ]; then
             unset PKG_PATH
