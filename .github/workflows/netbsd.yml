@@ -44,12 +44,12 @@ jobs:
           # sh: cannot create /home/runner/work/_temp/_runner_file_commands/set_env_3bfecdc6-e85b-47d7-9bfc-f27cdd564145: directory nonexistent
           mkdir -p /home/runner/work/_temp/_runner_file_commands
 
-          git clone --depth=1 https://github.com/NetBSD/pkgsrc .
-          git clone --depth=1 https://github.com/schmonz/pkgsrc-mlog this-category/this-package
+          git clone --depth=1 https://github.com/NetBSD/pkgsrc pkgsrc-current
+          git clone --depth=1 https://github.com/schmonz/pkgsrc-mlog pkgsrc-current/this-category/this-package
 
           if [ ! -d /opt/pkg ]; then
             unset PKG_PATH
-            cd bootstrap
+            cd pkgsrc-current/bootstrap
             ./bootstrap --prefix /opt/pkg
             ./cleanup
             cd ..
@@ -72,6 +72,10 @@ jobs:
 
           echo "release_version=${release_version}" >> "${GITHUB_ENV}"
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
+
+          # no need to rsync pkgsrc (and this package) back to the host
+          cd ${GITHUB_WORKSPACE}
+          rm -rf pkgsrc-current
 
     - name: Save bootstrap
       id: bootstrap-save
