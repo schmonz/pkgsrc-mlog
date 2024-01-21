@@ -30,7 +30,7 @@ jobs:
         release: ${{ matrix.osversion }}
         usesh: true
         prepare: |
-          pkg_add git-base
+          /usr/sbin/pkg_add git-base
         run: |
           set -e
 
