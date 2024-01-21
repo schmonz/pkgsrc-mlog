@@ -43,20 +43,15 @@ jobs:
         sync: sshfs
         run: |
           #set -e
-          echo "SCHMONZ 0: $(pwd)"
-          ls -l
-          echo
 
-          # 20240119 schmonz: avoid "pwd: getcwd() failed: Bad file descriptor"
-          cd /home/runner/work
-          echo "SCHMONZ 1: $(pwd)"
-          ls -l
-          echo
+          # $HOME is /root
+          # /root/work -> /home/runner/work
+          # /home/runner/work looks reaaaaal empty though
+          # where is everything from the host GITHUB_WORKSPACE?
 
-          cd ~
-          echo "SCHMONZ 2: $(pwd)"
-          ls -l
-          echo
+          /sbin/mount -v
+
+          find /home/runner/work -type d
 
           exit 77
 
