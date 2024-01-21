@@ -39,7 +39,7 @@ jobs:
       with:
         release: ${{ matrix.osversion }}
         usesh: true
-          #sync: sshfs
+        sync: sshfs
         run: |
           #set -e
 
