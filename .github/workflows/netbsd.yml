@@ -39,7 +39,7 @@ jobs:
       with:
         release: ${{ matrix.osversion }}
         usesh: true
-        sync: sshfs
+          #sync: sshfs
         run: |
           #set -e
 
@@ -48,6 +48,7 @@ jobs:
           # /home/runner/work looks reaaaaal empty though
           # where is everything from the host GITHUB_WORKSPACE?
           # host GITHUB_WORKSPACE = /home/runner/work/pkgsrc-mlog/pkgsrc-mlog
+          # does actions/checkout affect the VM? notqmail's seems to
 
           cd /home/runner/work
           find . -type d
