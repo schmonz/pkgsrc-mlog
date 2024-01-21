@@ -15,16 +15,15 @@ jobs:
       matrix:
         osversion: ["9.3"]
     steps:
-    - name: Checkout package
-      uses: actions/checkout@v4
-      with:
-        path: this-schmonz-repo
-
     - name: Checkout pkgsrc
       uses: actions/checkout@v4
       with:
         repository: NetBSD/pkgsrc
-        path: pkgsrc-current
+
+    - name: Checkout package
+      uses: actions/checkout@v4
+      with:
+        path: this-category/this-package
 
     - name: Restore bootstrap
       id: bootstrap-restore
@@ -48,6 +47,7 @@ jobs:
           # /root/work -> /home/runner/work
           # /home/runner/work looks reaaaaal empty though
           # where is everything from the host GITHUB_WORKSPACE?
+          # host GITHUB_WORKSPACE = /home/runner/work/pkgsrc-mlog/pkgsrc-mlog
 
           /sbin/mount -v
 
@@ -57,15 +57,13 @@ jobs:
 
           if [ ! -d /opt/pkg ]; then
             unset PKG_PATH
-            cd pkgsrc-current/bootstrap
+            cd bootstrap
             ./bootstrap --prefix /opt/pkg
             ./cleanup
-            cd ../..
+            cd ..
           fi
           PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
-          category=$(grep CATEGORIES= this-schmonz-repo/Makefile | awk '{print $2}')
-          mv this-schmonz-repo pkgsrc-current/${category}
-          cd pkgsrc-current/${category}/this-schmonz-repo
+          cd this-category/this-package
           bmake package
 
           # XXX WTF is GITHUB_WORKSPACE inside the VM
