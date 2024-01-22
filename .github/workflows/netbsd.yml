@@ -19,7 +19,7 @@ jobs:
       id: bootstrap-restore
       uses: actions/cache/restore@v4
       with:
-        path: ~/cached-netbsd-opt-pkg
+        path: ${{ github.workspace }}/cached-netbsd-opt-pkg
         key: NetBSD-${{ matrix.osversion }}-bootstrap-${{ github.run_id }}
         restore-keys: NetBSD-${{ matrix.osversion }}-bootstrap-
 
@@ -74,7 +74,7 @@ jobs:
           mv $(bmake show-var VARNAME=PKGFILE) ${GITHUB_WORKSPACE}/release-contents
           cd ${GITHUB_WORKSPACE}/release-contents
           for i in *.tgz; do
-            mv $i NetBSD-${{ matrix.osversion }}-unprivileged-$i
+            mv $i NetBSD-${{ matrix.osversion }}-$i
           done
           release_asset=$(echo *.tgz)
 
@@ -82,6 +82,8 @@ jobs:
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
 
           # put installed package tools where rsync can copy them out to host
+          # XXX will this preserve all the root permissions?
+          # probably I should tar it up myself
           mv /opt/pkg ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg
 
           # XXX raise vmactions issue:
@@ -96,7 +98,7 @@ jobs:
       uses: actions/cache/save@v4
       if: always()
       with:
-        path: ~/cached-netbsd-opt-pkg
+        path: ${{ github.workspace }}/cached-netbsd-opt-pkg
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Pretend to publish package
@@ -104,6 +106,7 @@ jobs:
         set -e
         echo "VERSION: version ${{ env.release_version }}"
         echo "FILE: ${{ env.release_asset }}"
+        echo "CONTENTS: $(tar -ztf ${{ env.release_asset }})"
 
     - name: Publish package
       uses: softprops/action-gh-release@v1
