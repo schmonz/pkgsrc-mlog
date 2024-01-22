@@ -40,6 +40,8 @@ jobs:
           /usr/sbin/pkg_add git-base
         run: |
           set -e
+          
+          # this all runs as root (whereas host runs as non-root)
 
           mkdir -p $(dirname ${GITHUB_ENV})
 
@@ -54,10 +56,9 @@ jobs:
             cd pkgsrc/bootstrap
             ./bootstrap --prefix /opt/pkg
             ./cleanup
-            cd ..
           fi
           PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
-          cd ${GITHUB_REPOSITORY}
+          cd pkgsrc/${GITHUB_REPOSITORY}
           bmake package
 
           mkdir ${GITHUB_WORKSPACE}/release-contents
