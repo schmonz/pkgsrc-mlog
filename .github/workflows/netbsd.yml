@@ -55,6 +55,7 @@ jobs:
             cd pkgsrc/bootstrap
             ./bootstrap --prefix /opt/pkg
             ./cleanup
+            cd ../..
           fi
           # build this package
           PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
@@ -138,6 +139,7 @@ jobs:
             cd pkgsrc/bootstrap
             ./bootstrap --prefix /opt/pkg
             ./cleanup
+            cd ../..
           fi
           # build this package
           PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
