@@ -19,7 +19,7 @@ jobs:
       id: bootstrap-restore
       uses: actions/cache/restore@v4
       with:
-        path: /opt/pkg
+        path: ~/cached-netbsd-opt-pkg
         key: NetBSD-${{ matrix.osversion }}-bootstrap-${{ github.run_id }}
         restore-keys: NetBSD-${{ matrix.osversion }}-bootstrap-
 
@@ -37,7 +37,7 @@ jobs:
         prepare: |
           /usr/sbin/pkg_add git-base
         run: |
-          set -e -x
+          set -e
 
           # sh: cannot create /home/runner/work/_temp/_runner_file_commands/set_env_3bfecdc6-e85b-47d7-9bfc-f27cdd564145: directory nonexistent
           # XXX raise vmactions issue:
@@ -53,7 +53,10 @@ jobs:
           git clone --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
           git clone --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
 
-          if [ ! -d /opt/pkg ]; then
+          if [ -d ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg ]; then
+            mkdir -p /opt
+            mv ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg /opt/pkg
+          else
             unset PKG_PATH
             cd pkgsrc/bootstrap
             ./bootstrap --prefix /opt/pkg
@@ -78,6 +81,9 @@ jobs:
           echo "release_version=${release_version}" >> "${GITHUB_ENV}"
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
 
+          # put installed package tools where rsync can copy them out to host
+          mv /opt/pkg ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg
+
           # XXX raise vmactions issue:
           # optional additional paths for rsyncToVM/rsyncBackFromVM
           # my use case: bootstrap in the VM, rsync to benefit from actions/cache
@@ -90,7 +96,7 @@ jobs:
       uses: actions/cache/save@v4
       if: always()
       with:
-        path: /opt/pkg
+        path: ~/cached-netbsd-opt-pkg
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Pretend to publish package
