@@ -48,11 +48,11 @@ jobs:
           git clone --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
           git clone --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
 
+          unset PKG_PATH
           if [ -d ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg ]; then
             mkdir -p /opt
             mv ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg /opt/pkg
           else
-            unset PKG_PATH
             cd pkgsrc/bootstrap
             ./bootstrap --prefix /opt/pkg
             ./cleanup
