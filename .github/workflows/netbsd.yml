@@ -121,7 +121,7 @@ jobs:
         usesh: true
         prepare: |
           set -e
-          pkg install git
+          pkg install -y git
         run: |
           set -e
           # work around vmactions bug
