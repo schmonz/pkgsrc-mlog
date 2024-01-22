@@ -1,5 +1,12 @@
 name: VM
 
+# TODO:
+#
+# raise vmactions issue for nonexistent ${GITHUB_ENV} parent directory
+# raise vmactions issue for sshfs maybe not working on NetBSD? (try FreeBSD first)
+#
+# try cross-platform-actions/action
+
 on:
   push:
     branches: ['main']
@@ -29,26 +36,12 @@ jobs:
       with:
         release: ${{ matrix.osversion }}
         usesh: true
-        # sync: rsync
-        # copyback: false ### but then I have to explicitly copy back the package
-        # XXX raise vmactions issue:
-        # optional specific path to copy back when copyback==false
-        # use case: my generated release artifacts
         prepare: |
           /usr/sbin/pkg_add git-base
         run: |
           set -e
 
-          # sh: cannot create /home/runner/work/_temp/_runner_file_commands/set_env_3bfecdc6-e85b-47d7-9bfc-f27cdd564145: directory nonexistent
-          # XXX raise vmactions issue:
-          # this should be handled for me, right?
           mkdir -p $(dirname ${GITHUB_ENV})
-
-          # host GITHUB_WORKSPACE = /home/runner/work/pkgsrc-mlog/pkgsrc-mlog
-          # if _not_ sshfs, it's populated here as well
-          # if _not_ sshfs, actions/checkout gets mirrored into the VM
-          # XXX raise vmactions issue:
-          # sshfs maybe isn't working on NetBSD? (try FreeBSD)
 
           git clone --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
           git clone --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
@@ -86,12 +79,7 @@ jobs:
           # probably I should tar it up myself
           mv /opt/pkg ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg
 
-          # XXX raise vmactions issue:
-          # optional additional paths for rsyncToVM/rsyncBackFromVM
-          # my use case: bootstrap in the VM, rsync to benefit from actions/cache
           rm -rf ${GITHUB_WORKSPACE}/pkgsrc
-
-          # XXX cross-platform-actions/action looks cool as well
 
     - name: Save bootstrap
       id: bootstrap-save
