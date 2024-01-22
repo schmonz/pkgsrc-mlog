@@ -37,7 +37,7 @@ jobs:
         prepare: |
           /usr/sbin/pkg_add git-base
         run: |
-          set -e
+          set -e -x
 
           # sh: cannot create /home/runner/work/_temp/_runner_file_commands/set_env_3bfecdc6-e85b-47d7-9bfc-f27cdd564145: directory nonexistent
           # XXX raise vmactions issue:
@@ -98,7 +98,6 @@ jobs:
         set -e
         echo "VERSION: version ${{ env.release_version }}"
         echo "FILE: ${{ env.release_asset }}"
-        echo "CONTENTS: $(tar -ztf ${{ env.release_asset }})"
 
     - name: Publish package
       uses: softprops/action-gh-release@v1
