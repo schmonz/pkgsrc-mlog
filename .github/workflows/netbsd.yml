@@ -29,36 +29,41 @@ jobs:
       with:
         release: ${{ matrix.osversion }}
         usesh: true
+        # sync: rsync
+        # copyback: false ### but then I have to explicitly copy back the package
+        # XXX raise vmactions issue:
+        # optional specific path to copy back when copyback==false
+        # use case: my generated release artifacts
         prepare: |
           /usr/sbin/pkg_add git-base
         run: |
           set -e
 
-          # $HOME is /root
-          # /root/work -> /home/runner/work
-          # /home/runner/work looks reaaaaal empty though
-          # where is everything from the host GITHUB_WORKSPACE?
-          # host GITHUB_WORKSPACE = /home/runner/work/pkgsrc-mlog/pkgsrc-mlog
-          # does actions/checkout affect the VM? notqmail's seems to
-
           # sh: cannot create /home/runner/work/_temp/_runner_file_commands/set_env_3bfecdc6-e85b-47d7-9bfc-f27cdd564145: directory nonexistent
-          mkdir -p /home/runner/work/_temp/_runner_file_commands
+          # XXX raise vmactions issue:
+          # this should be handled for me, right?
+          mkdir -p $(dirname $(GITHUB_ENV})
 
-          git clone --depth=1 https://github.com/NetBSD/pkgsrc pkgsrc-current
-          git clone --depth=1 https://github.com/schmonz/pkgsrc-mlog pkgsrc-current/this-category/this-package
+          # host GITHUB_WORKSPACE = /home/runner/work/pkgsrc-mlog/pkgsrc-mlog
+          # if _not_ sshfs, it's populated here as well
+          # if _not_ sshfs, actions/checkout gets mirrored into the VM
+          # XXX raise vmactions issue:
+          # sshfs maybe isn't working on NetBSD? (try FreeBSD)
+
+          git clone --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
+          git clone --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
 
           if [ ! -d /opt/pkg ]; then
             unset PKG_PATH
-            cd pkgsrc-current/bootstrap
+            cd pkgsrc/bootstrap
             ./bootstrap --prefix /opt/pkg
             ./cleanup
             cd ..
           fi
           PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
-          cd this-category/this-package
+          cd ${GITHUB_REPOSITORY}
           bmake package
 
-          # XXX WTF is GITHUB_WORKSPACE inside the VM
           mkdir ${GITHUB_WORKSPACE}/release-contents
 
           release_version=$(bmake show-var VARNAME=PKGVERSION)
@@ -73,9 +78,12 @@ jobs:
           echo "release_version=${release_version}" >> "${GITHUB_ENV}"
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
 
-          # no need to rsync pkgsrc (and this package) back to the host
-          cd ${GITHUB_WORKSPACE}
-          rm -rf pkgsrc-current
+          # XXX raise vmactions issue:
+          # optional additional paths for rsyncToVM/rsyncBackFromVM
+          # my use case: bootstrap in the VM, rsync to benefit from actions/cache
+          rm -rf ${GITHUB_WORKSPACE}/pkgsrc
+
+          # XXX cross-platform-actions/action looks cool as well
 
     - name: Save bootstrap
       id: bootstrap-save
@@ -90,6 +98,7 @@ jobs:
         set -e
         echo "VERSION: version ${{ env.release_version }}"
         echo "FILE: ${{ env.release_asset }}"
+        echo "CONTENTS: $(tar -ztf ${{ env.release_asset }})"
 
     - name: Publish package
       uses: softprops/action-gh-release@v1
