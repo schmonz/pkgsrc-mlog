@@ -42,7 +42,7 @@ jobs:
           # sh: cannot create /home/runner/work/_temp/_runner_file_commands/set_env_3bfecdc6-e85b-47d7-9bfc-f27cdd564145: directory nonexistent
           # XXX raise vmactions issue:
           # this should be handled for me, right?
-          mkdir -p $(dirname $(GITHUB_ENV})
+          mkdir -p $(dirname ${GITHUB_ENV})
 
           # host GITHUB_WORKSPACE = /home/runner/work/pkgsrc-mlog/pkgsrc-mlog
           # if _not_ sshfs, it's populated here as well
