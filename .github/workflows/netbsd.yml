@@ -39,8 +39,14 @@ jobs:
         prepare: |
           set -e
           /usr/sbin/pkg_add git-base
+        run: |
+          set -e
+          # work around vmactions bug
+          mkdir -p $(dirname ${GITHUB_ENV})
+          # fetch pkgsrc + this package
           git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
           git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
+          # bootstrap pkgsrc
           unset PKG_PATH
           if [ -d ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg ]; then
             mkdir -p /opt
@@ -50,11 +56,7 @@ jobs:
             ./bootstrap --prefix /opt/pkg
             ./cleanup
           fi
-        run: |
-          set -e
-          # work around vmactions bug
-          mkdir -p $(dirname ${GITHUB_ENV})
-          # build package
+          # build this package
           PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
           cd pkgsrc/${GITHUB_REPOSITORY}
           bmake package
