@@ -155,7 +155,7 @@ jobs:
           release_asset=$(echo *.tgz)
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
           # put bootstrap somewhere cacheable
-          mv /opt/pkg ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg
+          mv /opt/pkg ${GITHUB_WORKSPACE}/cached-freebsd-opt-pkg
           # avoid unneeded big slow rsync
           rm -rf ${GITHUB_WORKSPACE}/pkgsrc
 
