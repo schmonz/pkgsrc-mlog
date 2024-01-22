@@ -37,17 +37,10 @@ jobs:
         release: ${{ matrix.osversion }}
         usesh: true
         prepare: |
-          /usr/sbin/pkg_add git-base
-        run: |
           set -e
-          
-          # this all runs as root (whereas host runs as non-root)
-
-          mkdir -p $(dirname ${GITHUB_ENV})
-
-          git clone --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
-          git clone --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
-
+          /usr/sbin/pkg_add git-base
+          git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
+          git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
           unset PKG_PATH
           if [ -d ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg ]; then
             mkdir -p /opt
@@ -57,29 +50,26 @@ jobs:
             ./bootstrap --prefix /opt/pkg
             ./cleanup
           fi
+        run: |
+          set -e
+          # work around vmactions bug
+          mkdir -p $(dirname ${GITHUB_ENV})
+          # build package
           PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
           cd pkgsrc/${GITHUB_REPOSITORY}
           bmake package
-
-          mkdir ${GITHUB_WORKSPACE}/release-contents
-
+          # gather up artifacts
           release_version=$(bmake show-var VARNAME=PKGVERSION)
-
+          echo "release_version=${release_version}" >> "${GITHUB_ENV}"
+          mkdir ${GITHUB_WORKSPACE}/release-contents
           mv $(bmake show-var VARNAME=PKGFILE) ${GITHUB_WORKSPACE}/release-contents
           cd ${GITHUB_WORKSPACE}/release-contents
-          for i in *.tgz; do
-            mv $i NetBSD-${{ matrix.osversion }}-$i
-          done
+          for i in *.tgz; do mv $i NetBSD-${{ matrix.osversion }}-$i; done
           release_asset=$(echo *.tgz)
-
-          echo "release_version=${release_version}" >> "${GITHUB_ENV}"
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
-
-          # put installed package tools where rsync can copy them out to host
-          # XXX will this preserve all the root permissions?
-          # probably I should tar it up myself
+          # put bootstrap somewhere cacheable
           mv /opt/pkg ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg
-
+          # avoid unneeded big slow rsync
           rm -rf ${GITHUB_WORKSPACE}/pkgsrc
 
     - name: Save bootstrap
@@ -95,7 +85,6 @@ jobs:
         set -e
         echo "VERSION: version ${{ env.release_version }}"
         echo "FILE: ${{ env.release_asset }}"
-        echo "CONTENTS: $(tar -ztf ${{ env.release_asset }})"
 
     - name: Publish package
       uses: softprops/action-gh-release@v1
