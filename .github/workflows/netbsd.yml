@@ -202,7 +202,8 @@ jobs:
 
     - name: Build bootstrap and packages
       id: bootstrap-build
-      uses: vmactions/${{ matrix.os.lname }}-vm@v1
+      #uses: vmactions/${{ matrix.os.lname }}-vm@v1
+      uses: vmactions/openbsd-vm@v1
       with:
         release: ${{ matrix.os.version }}
         usesh: true
