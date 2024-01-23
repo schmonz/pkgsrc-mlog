@@ -13,6 +13,7 @@ on:
 
 jobs:
   netbsd:
+    if: false
     name: >
       NetBSD
       ${{ matrix.osversion }}
@@ -97,6 +98,7 @@ jobs:
         name: ${{ env.release_version }}
 
   freebsd:
+    if: false
     name: >
       FreeBSD
       ${{ matrix.osversion }}
@@ -165,6 +167,90 @@ jobs:
       if: always()
       with:
         path: ${{ github.workspace }}/cached-freebsd-opt-pkg
+        key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
+
+    - name: Pretend to publish package
+      run: |
+        set -e
+        echo "VERSION: version ${{ env.release_version }}"
+        echo "FILE: ${{ env.release_asset }}"
+
+  vmactions:
+    name: >
+      ${{ matrix.os.uname }}
+      ${{ matrix.os.version }}
+      ${{ matrix.os.arch }}
+    runs-on: ${{ matrix.os.host }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - uname: OpenBSD
+            lname: openbsd
+            arch: arm64
+            version: '7.4'
+            host: ubuntu-latest
+            prep: pkg_add git
+    steps:
+    - name: Restore bootstrap
+      id: bootstrap-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
+        key: ${{ matrix.os.uname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-bootstrap-${{ github.run_id }}
+        restore-keys: ${{ matrix.os.uname }}-${{ matrix.os.version }}-bootstrap-
+
+    - name: Build bootstrap and packages
+      id: bootstrap-build
+      uses: vmactions/${{ matrix.os.lname }}-vm@v1
+      with:
+        release: ${{ matrix.os.version }}
+        usesh: true
+        prepare: |
+          set -e
+          ${{ matrix.os.prep }}
+        run: |
+          set -e
+          # work around vmactions bug
+          mkdir -p $(dirname ${GITHUB_ENV})
+          # fetch pkgsrc + this package
+          git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
+          git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
+          # bootstrap pkgsrc
+          unset PKG_PATH
+          if [ -d ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg ]; then
+            mkdir -p /opt
+            mv ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg /opt/pkg
+          else
+            cd pkgsrc/bootstrap
+            ./bootstrap --prefix /opt/pkg
+            ./cleanup
+            cd ../..
+          fi
+          # build this package
+          PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
+          cd pkgsrc/${GITHUB_REPOSITORY}
+          bmake package
+          # gather up artifacts
+          release_version=$(bmake show-var VARNAME=PKGVERSION)
+          echo "release_version=${release_version}" >> "${GITHUB_ENV}"
+          mkdir ${GITHUB_WORKSPACE}/release-contents
+          mv $(bmake show-var VARNAME=PKGFILE) ${GITHUB_WORKSPACE}/release-contents
+          cd ${GITHUB_WORKSPACE}/release-contents
+          for i in *.tgz; do mv $i ${{ matrix.os.uname }}-${{ matrix.os.version }}-$i; done
+          release_asset=$(echo *.tgz)
+          echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
+          # put bootstrap somewhere cacheable
+          mv /opt/pkg ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
+          # avoid unneeded big slow rsync
+          rm -rf ${GITHUB_WORKSPACE}/pkgsrc
+
+    - name: Save bootstrap
+      id: bootstrap-save
+      uses: actions/cache/save@v4
+      if: always()
+      with:
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Pretend to publish package
