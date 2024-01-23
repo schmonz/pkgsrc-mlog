@@ -12,169 +12,6 @@ on:
     branches: ['main']
 
 jobs:
-  netbsd:
-    if: false
-    name: >
-      NetBSD
-      ${{ matrix.os.version }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        os.version: ["9.3"]
-    steps:
-    - name: Restore bootstrap
-      id: bootstrap-restore
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{ github.workspace }}/cached-netbsd-opt-pkg
-        key: NetBSD-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
-        restore-keys: NetBSD-${{ matrix.os.version }}-bootstrap-
-
-    - name: Build bootstrap and packages
-      id: bootstrap-build
-      uses: vmactions/netbsd-vm@v1
-      with:
-        release: ${{ matrix.os.version }}
-        usesh: true
-        prepare: |
-          set -e
-          /usr/sbin/pkg_add git-base
-        run: |
-          set -e
-          # work around vmactions bug
-          mkdir -p $(dirname ${GITHUB_ENV})
-          # fetch pkgsrc + this package
-          git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
-          git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
-          # bootstrap pkgsrc
-          unset PKG_PATH
-          if [ -d ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg ]; then
-            mkdir -p /opt
-            mv ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg /opt/pkg
-          else
-            cd pkgsrc/bootstrap
-            ./bootstrap --prefix /opt/pkg
-            ./cleanup
-            cd ../..
-          fi
-          # build this package
-          PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
-          cd pkgsrc/${GITHUB_REPOSITORY}
-          bmake package
-          # gather up artifacts
-          release_version=$(bmake show-var VARNAME=PKGVERSION)
-          echo "release_version=${release_version}" >> "${GITHUB_ENV}"
-          mkdir ${GITHUB_WORKSPACE}/release-contents
-          mv $(bmake show-var VARNAME=PKGFILE) ${GITHUB_WORKSPACE}/release-contents
-          cd ${GITHUB_WORKSPACE}/release-contents
-          for i in *.tgz; do mv $i NetBSD-${{ matrix.os.version }}-$i; done
-          release_asset=$(echo *.tgz)
-          echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
-          # put bootstrap somewhere cacheable
-          mv /opt/pkg ${GITHUB_WORKSPACE}/cached-netbsd-opt-pkg
-          # avoid unneeded big slow rsync
-          rm -rf ${GITHUB_WORKSPACE}/pkgsrc
-
-    - name: Save bootstrap
-      id: bootstrap-save
-      uses: actions/cache/save@v4
-      if: always()
-      with:
-        path: ${{ github.workspace }}/cached-netbsd-opt-pkg
-        key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
-
-    - name: Pretend to publish package
-      run: |
-        set -e
-        echo "VERSION: version ${{ env.release_version }}"
-        echo "FILE: ${{ env.release_asset }}"
-
-    - name: Publish package
-      uses: softprops/action-gh-release@v1
-      if: false
-      with:
-        files: ${{ env.release_asset }}
-        name: ${{ env.release_version }}
-
-  freebsd:
-    if: false
-    name: >
-      FreeBSD
-      ${{ matrix.os.version }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        os.version: ["14.0"]
-    steps:
-    - name: Restore bootstrap
-      id: bootstrap-restore
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{ github.workspace }}/cached-freebsd-opt-pkg
-        key: FreeBSD-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
-        restore-keys: FreeBSD-${{ matrix.os.version }}-bootstrap-
-
-    - name: Build bootstrap and packages
-      id: bootstrap-build
-      uses: vmactions/freebsd-vm@v1
-      with:
-        release: ${{ matrix.os.version }}
-        usesh: true
-        prepare: |
-          set -e
-          pkg install -y git
-        run: |
-          set -e
-          # work around vmactions bug
-          mkdir -p $(dirname ${GITHUB_ENV})
-          # fetch pkgsrc + this package
-          git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
-          git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
-          # bootstrap pkgsrc
-          unset PKG_PATH
-          if [ -d ${GITHUB_WORKSPACE}/cached-freebsd-opt-pkg ]; then
-            mkdir -p /opt
-            mv ${GITHUB_WORKSPACE}/cached-freebsd-opt-pkg /opt/pkg
-          else
-            cd pkgsrc/bootstrap
-            ./bootstrap --prefix /opt/pkg
-            ./cleanup
-            cd ../..
-          fi
-          # build this package
-          PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
-          cd pkgsrc/${GITHUB_REPOSITORY}
-          bmake package
-          # gather up artifacts
-          release_version=$(bmake show-var VARNAME=PKGVERSION)
-          echo "release_version=${release_version}" >> "${GITHUB_ENV}"
-          mkdir ${GITHUB_WORKSPACE}/release-contents
-          mv $(bmake show-var VARNAME=PKGFILE) ${GITHUB_WORKSPACE}/release-contents
-          cd ${GITHUB_WORKSPACE}/release-contents
-          for i in *.tgz; do mv $i FreeBSD-${{ matrix.os.version }}-$i; done
-          release_asset=$(echo *.tgz)
-          echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
-          # put bootstrap somewhere cacheable
-          mv /opt/pkg ${GITHUB_WORKSPACE}/cached-freebsd-opt-pkg
-          # avoid unneeded big slow rsync
-          rm -rf ${GITHUB_WORKSPACE}/pkgsrc
-
-    - name: Save bootstrap
-      id: bootstrap-save
-      uses: actions/cache/save@v4
-      if: always()
-      with:
-        path: ${{ github.workspace }}/cached-freebsd-opt-pkg
-        key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
-
-    - name: Pretend to publish package
-      run: |
-        set -e
-        echo "VERSION: version ${{ env.release_version }}"
-        echo "FILE: ${{ env.release_asset }}"
-
   vmactions:
     name: >
       ${{ matrix.os.uname }}
@@ -198,12 +35,7 @@ jobs:
             version: '9.3'
             host: macos-latest
             prep: |
-              sudo pkgin -y update
-              sudo pkgin -y upgrade
               sudo pkgin -y install git-base
-              #PKG_PATH="http://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/9.3/All"
-              #sudo PKG_PATH=${PKG_PATH} /usr/sbin/pkg_add git-base
-              #sudo PKG_PATH=${PKG_PATH} /usr/sbin/pkg_add git-base
           #- uname: OpenBSD
           #  lname: openbsd
           #  arch: arm64
@@ -227,7 +59,6 @@ jobs:
         operating_system: ${{ matrix.os.lname }}
         version: ${{ matrix.os.version }}
         architecture: ${{ matrix.os.arch }}
-        hypervisor: qemu
         shell: sh
         run: |
           set -e
