@@ -6,8 +6,8 @@ name: VM
 # raise vmactions issue for sshfs maybe not working on NetBSD? (try FreeBSD first)
 # /opt/pkg for macOS, /usr/pkg for everything else, so the packages could conceivably match official packages
 # NetBSD
-# - 22m27s sans cached bootstrap (and with all the pkgin steps)
-# - 
+# - 22m27s sans cached bootstrap
+# - 22m48s WITH cached bootstrap?!?!
 
 on:
   push:
@@ -65,12 +65,17 @@ jobs:
         shell: sh
         run: |
           set -e
+          echo "SCHMONZ 1: $(date)"
           ${{ matrix.os.prep }}
+          echo "SCHMONZ 2: $(date)"
           # work around vmactions bug
           mkdir -p $(dirname ${GITHUB_ENV})
           # fetch pkgsrc + this package
+          echo "SCHMONZ 3: $(date)"
           git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
+          echo "SCHMONZ 4: $(date)"
           git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
+          echo "SCHMONZ 5: $(date)"
           # bootstrap pkgsrc
           unset PKG_PATH
           if [ -d ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg ]; then
@@ -82,10 +87,12 @@ jobs:
             sudo ./cleanup
             cd ../..
           fi
+          echo "SCHMONZ 6: $(date)"
           # build this package
           PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
           cd pkgsrc/${GITHUB_REPOSITORY}
           bmake SU_CMD="sudo ${SHELL} -c" package
+          echo "SCHMONZ 7: $(date)"
           # gather up artifacts
           release_version=$(bmake show-var VARNAME=PKGVERSION)
           echo "release_version=${release_version}" >> "${GITHUB_ENV}"
@@ -95,10 +102,13 @@ jobs:
           for i in *.tgz; do mv $i ${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-$i; done
           release_asset=$(echo *.tgz)
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
+          echo "SCHMONZ 8: $(date)"
           # put bootstrap somewhere cacheable
           sudo mv /opt/pkg ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
+          echo "SCHMONZ 9: $(date)"
           # avoid unneeded big slow rsync
           rm -rf ${GITHUB_WORKSPACE}/pkgsrc
+          echo "SCHMONZ 10: $(date)"
 
     - name: Save bootstrap
       id: bootstrap-save
