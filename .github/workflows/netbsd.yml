@@ -85,14 +85,14 @@ jobs:
           # build this package
           PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
           cd pkgsrc/${GITHUB_REPOSITORY}
-          sudo bmake package
+          bmake SU_CMD="sudo ${SHELL} -c" package
           # gather up artifacts
           release_version=$(bmake show-var VARNAME=PKGVERSION)
           echo "release_version=${release_version}" >> "${GITHUB_ENV}"
           mkdir ${GITHUB_WORKSPACE}/release-contents
-          sudo mv $(bmake show-var VARNAME=PKGFILE) ${GITHUB_WORKSPACE}/release-contents
+          mv $(bmake show-var VARNAME=PKGFILE) ${GITHUB_WORKSPACE}/release-contents
           cd ${GITHUB_WORKSPACE}/release-contents
-          for i in *.tgz; do sudo mv $i ${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-$i; done
+          for i in *.tgz; do mv $i ${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-$i; done
           release_asset=$(echo *.tgz)
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
           # put bootstrap somewhere cacheable
