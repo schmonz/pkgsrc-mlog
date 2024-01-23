@@ -219,6 +219,7 @@ jobs:
         operating_system: ${{ matrix.os.lname }}
         version: ${{ matrix.os.version }}
         architecture: ${{ matrix.os.arch }}
+        hypervisor: qemu
         shell: sh
         run: |
           set -e
