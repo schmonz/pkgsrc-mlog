@@ -190,7 +190,7 @@ jobs:
             arch: x86-64
             version: '13.2'
             host: macos-latest
-            prep: 'pkg install -y git'
+            prep: 'sudo pkg install -y git'
           - uname: NetBSD
             lname: netbsd
             arch: x86-64
@@ -199,13 +199,13 @@ jobs:
             prep: |
               PKG_PATH="https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/9.3/All/"
               export PKG_PATH
-              /usr/sbin/pkg_add git-base
+              sudo /usr/sbin/pkg_add git-base
           - uname: OpenBSD
             lname: openbsd
             arch: arm64
             version: '7.4'
             host: ubuntu-latest
-            prep: 'pkg_add git'
+            prep: 'sudo pkg_add git'
     steps:
     - name: Restore bootstrap
       id: bootstrap-restore
@@ -226,7 +226,7 @@ jobs:
         shell: sh
         run: |
           set -e
-          sudo ${{ matrix.os.prep }}
+          ${{ matrix.os.prep }}
           # work around vmactions bug
           mkdir -p $(dirname ${GITHUB_ENV})
           # fetch pkgsrc + this package
