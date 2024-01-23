@@ -222,7 +222,7 @@ jobs:
         shell: sh
         run: |
           set -e
-          ${{ matrix.os.prep }}
+          sudo ${{ matrix.os.prep }}
           # work around vmactions bug
           mkdir -p $(dirname ${GITHUB_ENV})
           # fetch pkgsrc + this package
@@ -232,11 +232,10 @@ jobs:
           unset PKG_PATH
           if [ -d ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg ]; then
             mkdir -p /opt
-            mv ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg /opt/pkg
+            sudo mv ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg /opt/pkg
           else
             cd pkgsrc/bootstrap
-            ./bootstrap --prefix /opt/pkg
-            ./cleanup
+            sudo ./bootstrap --prefix /opt/pkg
             cd ../..
           fi
           # build this package
@@ -253,7 +252,7 @@ jobs:
           release_asset=$(echo *.tgz)
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
           # put bootstrap somewhere cacheable
-          mv /opt/pkg ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
+          sudo mv /opt/pkg ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
           # avoid unneeded big slow rsync
           rm -rf ${GITHUB_WORKSPACE}/pkgsrc
 
