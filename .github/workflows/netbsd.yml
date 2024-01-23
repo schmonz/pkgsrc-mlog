@@ -197,7 +197,7 @@ jobs:
             version: '9.3'
             host: macos-latest
             prep: |
-              PKG_PATH="https://cdn.NetBSD.org/pub/pkgsrc/packages/${{ matrix.os.uname }}/x86_64/${{ matrix.os.version }}/All/
+              PKG_PATH="https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/9.3/All/"
               export PKG_PATH
               /usr/sbin/pkg_add git-base
           - uname: OpenBSD
