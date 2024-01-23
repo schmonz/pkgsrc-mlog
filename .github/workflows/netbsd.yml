@@ -188,9 +188,10 @@ jobs:
           - uname: FreeBSD
             lname: freebsd
             arch: x86-64
-            version: '13.2'
+            version: '13.2' # XXX list?
             host: macos-latest
-            prep: 'sudo pkg install -y git'
+            prep: |
+              sudo pkg install -y git
           - uname: NetBSD
             lname: netbsd
             arch: x86-64
@@ -198,14 +199,14 @@ jobs:
             host: macos-latest
             prep: |
               PKG_PATH="https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/9.3/All/"
-              export PKG_PATH
-              sudo /usr/sbin/pkg_add git-base
+              sudo PKG_PATH=${PKG_PATH} /usr/sbin/pkg_add git-base
           - uname: OpenBSD
             lname: openbsd
             arch: arm64
             version: '7.4'
             host: ubuntu-latest
-            prep: 'sudo pkg_add git'
+            prep: |
+              sudo pkg_add git
     steps:
     - name: Restore bootstrap
       id: bootstrap-restore
@@ -252,7 +253,7 @@ jobs:
           mkdir ${GITHUB_WORKSPACE}/release-contents
           mv $(bmake show-var VARNAME=PKGFILE) ${GITHUB_WORKSPACE}/release-contents
           cd ${GITHUB_WORKSPACE}/release-contents
-          for i in *.tgz; do mv $i ${{ matrix.os.uname }}-${{ matrix.os.version }}-$i; done
+          for i in *.tgz; do mv $i ${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-$i; done
           release_asset=$(echo *.tgz)
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
           # put bootstrap somewhere cacheable
