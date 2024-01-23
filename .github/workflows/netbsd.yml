@@ -185,28 +185,28 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - uname: FreeBSD
-            lname: freebsd
-            arch: x86-64
-            version: '13.2' # XXX list?
-            host: macos-latest
-            prep: |
-              sudo pkg install -y git
+          #- uname: FreeBSD
+          #  lname: freebsd
+          #  arch: x86-64
+          #  version: '13.2' # XXX list?
+          #  host: macos-latest
+          #  prep: |
+          #    sudo pkg install -y git
           - uname: NetBSD
             lname: netbsd
             arch: x86-64
             version: '9.3'
             host: macos-latest
             prep: |
-              PKG_PATH="https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/9.3/All/"
+              PKG_PATH="http://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/9.3/All"
               sudo PKG_PATH=${PKG_PATH} /usr/sbin/pkg_add git-base
-          - uname: OpenBSD
-            lname: openbsd
-            arch: arm64
-            version: '7.4'
-            host: ubuntu-latest
-            prep: |
-              sudo pkg_add git
+          #- uname: OpenBSD
+          #  lname: openbsd
+          #  arch: arm64
+          #  version: '7.4'
+          #  host: ubuntu-latest
+          #  prep: |
+          #    sudo pkg_add git
     steps:
     - name: Restore bootstrap
       id: bootstrap-restore
@@ -246,7 +246,7 @@ jobs:
           # build this package
           PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
           cd pkgsrc/${GITHUB_REPOSITORY}
-          bmake package
+          bmake SU_CMD="sudo ${SHELL} -c" package
           # gather up artifacts
           release_version=$(bmake show-var VARNAME=PKGVERSION)
           echo "release_version=${release_version}" >> "${GITHUB_ENV}"
