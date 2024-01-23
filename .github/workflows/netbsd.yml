@@ -190,7 +190,7 @@ jobs:
             arch: arm64
             version: '7.4'
             host: ubuntu-latest
-            prep: pkg_add git
+            prep: 'pkg_add git'
     steps:
     - name: Restore bootstrap
       id: bootstrap-restore
