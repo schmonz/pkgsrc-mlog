@@ -198,8 +198,12 @@ jobs:
             version: '9.3'
             host: macos-latest
             prep: |
-              PKG_PATH="http://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/9.3/All"
-              sudo PKG_PATH=${PKG_PATH} /usr/sbin/pkg_add git-base
+              sudo pkgin -y update
+              sudo pkgin -y upgrade
+              sudo pkgin -y install git-base
+              #PKG_PATH="http://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/x86_64/9.3/All"
+              #sudo PKG_PATH=${PKG_PATH} /usr/sbin/pkg_add git-base
+              #sudo PKG_PATH=${PKG_PATH} /usr/sbin/pkg_add git-base
           #- uname: OpenBSD
           #  lname: openbsd
           #  arch: arm64
