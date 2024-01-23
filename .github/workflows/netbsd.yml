@@ -182,7 +182,7 @@ jobs:
       ${{ matrix.os.arch }}
     runs-on: ${{ matrix.os.host }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os:
           - uname: FreeBSD
