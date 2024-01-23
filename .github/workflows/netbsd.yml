@@ -214,7 +214,7 @@ jobs:
 
     - name: Build bootstrap and packages
       id: bootstrap-build
-      uses: cross-platform-actions/actions@v0.22.0
+      uses: cross-platform-actions/action@v0.22.0
       with:
         operating_system: ${{ matrix.os.lname }}
         version: ${{ matrix.os.version }}
