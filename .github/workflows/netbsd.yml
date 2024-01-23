@@ -219,6 +219,7 @@ jobs:
         operating_system: ${{ matrix.os.lname }}
         version: ${{ matrix.os.version }}
         architecture: ${{ matrix.os.arch }}
+        shell: sh
         run: |
           set -e
           ${{ matrix.os.prep }}
