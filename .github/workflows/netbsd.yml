@@ -36,7 +36,7 @@ jobs:
             host: macos-latest
             prep: |
               sudo pkgin -y install mozilla-rootcerts git-base
-              sudo mozilla-rootcerts install
+              sudo /usr/pkg/sbin/mozilla-rootcerts install
           #- uname: OpenBSD
           #  lname: openbsd
           #  arch: arm64
