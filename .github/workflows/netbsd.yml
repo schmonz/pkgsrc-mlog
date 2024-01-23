@@ -4,8 +4,8 @@ name: VM
 #
 # raise vmactions issue for nonexistent ${GITHUB_ENV} parent directory
 # raise vmactions issue for sshfs maybe not working on NetBSD? (try FreeBSD first)
-#
-# try cross-platform-actions/action
+# /opt/pkg for macOS, /usr/pkg for everything else
+# NetBSD 22m27s sans cached bootstrap
 
 on:
   push:
