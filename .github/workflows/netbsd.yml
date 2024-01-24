@@ -95,15 +95,13 @@ jobs:
           cd pkgsrc/${GITHUB_REPOSITORY}
           bmake SU_CMD="sudo ${SHELL} -c" package
           echo "SCHMONZ 7: $(date)"
-          # XXX debug
-          set -x
           # gather up artifacts
           release_version=$(bmake show-var VARNAME=PKGVERSION)
           echo "release_version=${release_version}" >> "${GITHUB_ENV}"
           mkdir ${GITHUB_WORKSPACE}/release-contents
           mv $(bmake show-var VARNAME=PKGFILE) ${GITHUB_WORKSPACE}/release-contents
           cd ${GITHUB_WORKSPACE}/release-contents
-          for i in *.tgz; do mv $i cross-platform-actions-{{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-$i; done
+          for i in *.tgz; do mv $i cross-platform-actions-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-$i; done
           release_asset=$(echo *.tgz)
           echo "release_asset=${GITHUB_WORKSPACE}/release-contents/${release_asset}" >> "${GITHUB_ENV}"
           echo "SCHMONZ 8: $(date)"
