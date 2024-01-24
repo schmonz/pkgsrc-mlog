@@ -1,14 +1,6 @@
 #!/bin/sh
 
 set -e
-# work around vmactions bug
-mkdir -p $(dirname ${GITHUB_ENV})
-# fetch pkgsrc + this package
-echo "SCHMONZ 1: $(date)"
-git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
-echo "SCHMONZ 2: $(date)"
-mkdir pkgsrc/schmonz
-mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}
 # bootstrap pkgsrc
 unset PKG_PATH
 if [ -d ${GITHUB_WORKSPACE}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg ]; then

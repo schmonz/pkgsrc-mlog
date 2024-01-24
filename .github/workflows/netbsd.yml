@@ -70,12 +70,17 @@ jobs:
         release: ${{ matrix.os.version }}
         usesh: true
         prepare: |
+          set -e
           ${{ matrix.os.prep }}
         run: |
-          # XXX use actions/checkout to put this someplace temporary
-          # XXX then in the .sh script, after cloning pkgsrc, move it under there
-          # git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY} pkgsrc/${GITHUB_REPOSITORY}
-          ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh
+          set -e
+          # work around vmactions bug
+          mkdir -p $(dirname ${GITHUB_ENV})
+          # fetch pkgsrc and overlay this repo
+          git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
+          mkdir -p pkgsrc/schmonz
+          mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}
+          ./pkgsrc/.github/workflows/bootstrap-and-build.sh
 
     - name: Save bootstrap
       id: bootstrap-save
