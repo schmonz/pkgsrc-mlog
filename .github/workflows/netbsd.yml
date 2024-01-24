@@ -71,7 +71,7 @@ jobs:
           ${{ matrix.os.prep }}
           echo "SCHMONZ 2: $(date)"
           # work around vmactions bug
-          mkdir -p $(dirname ${GITHUB_ENV})
+          ### mkdir -p $(dirname ${GITHUB_ENV})
           # fetch pkgsrc + this package
           echo "SCHMONZ 3: $(date)"
           git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
@@ -95,6 +95,8 @@ jobs:
           cd pkgsrc/${GITHUB_REPOSITORY}
           bmake SU_CMD="sudo ${SHELL} -c" package
           echo "SCHMONZ 7: $(date)"
+          # XXX debug
+          set -x
           # gather up artifacts
           release_version=$(bmake show-var VARNAME=PKGVERSION)
           echo "release_version=${release_version}" >> "${GITHUB_ENV}"
@@ -168,7 +170,7 @@ jobs:
           ### ${{ matrix.os.prep }}
           echo "SCHMONZ 2: $(date)"
           # work around vmactions bug
-          ### mkdir -p $(dirname ${GITHUB_ENV})
+          mkdir -p $(dirname ${GITHUB_ENV})
           # fetch pkgsrc + this package
           echo "SCHMONZ 3: $(date)"
           git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
