@@ -78,7 +78,7 @@ move_bootstrap_somewhere_cacheable() {
 }
 
 avoid_unneeded_big_slow_rsync() {
-	rm -rf pkgsrc
+	rm -rf pkgsrc || true
 }
 
 main() {
