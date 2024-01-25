@@ -80,7 +80,8 @@ jobs:
           git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
           mkdir -p pkgsrc/schmonz
           mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}
-          ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh
+          # do the real work
+          ${SHELL} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.version }} ${{ matrix.os.arch }}
 
     - name: Save bootstrap
       id: bootstrap-save
