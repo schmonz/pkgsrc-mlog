@@ -27,9 +27,81 @@ on:
     branches: [main]
 
 jobs:
-  vm-action:
+  freebsd-x64:
     name: >
-      vmactions
+      ${{ matrix.os.uname }}
+      ${{ matrix.os.version }}
+      ${{ matrix.os.arch }}
+    runs-on: ${{ matrix.os.host }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - uname: FreeBSD
+            lname: freebsd
+            version: '14.0'
+            arch: amd64
+            host: ubuntu-latest
+            prep: |
+              set -e
+              pkg install -y git
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        path: move-under-pkgsrc-once-you-have-pkgsrc
+
+    - name: Restore bootstrap
+      id: bootstrap-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
+        key: ${{ matrix.os.uname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-bootstrap-${{ github.run_id }}
+        restore-keys: ${{ matrix.os.uname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-bootstrap-
+
+    - name: Build bootstrap and packages
+      id: bootstrap-build
+      uses: vmactions/freebsd-vm@v1
+      with:
+        release: ${{ matrix.os.version }}
+        usesh: true
+        prepare: |
+          set -e
+          ${{ matrix.os.prep }}
+        run: |
+          set -e
+          # work around vmactions bug
+          mkdir -p $(dirname ${GITHUB_ENV})
+          # fetch pkgsrc and overlay this repo
+          git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
+          mkdir -p pkgsrc/schmonz
+          mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}
+          # do the real work
+          ${SHELL} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.version }} ${{ matrix.os.arch }}
+
+    - name: Save bootstrap
+      id: bootstrap-save
+      uses: actions/cache/save@v4
+      if: always()
+      with:
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
+        key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
+
+    - name: Pretend to publish package
+      run: |
+        set -e
+        echo "VERSION: version ${{ env.release_version }}"
+        echo "FILE: ${{ env.release_asset }}"
+
+    - name: Publish package
+      uses: softprops/action-gh-release@v1
+      if: false
+      with:
+        files: ${{ env.release_asset }}
+        name: ${{ env.release_version }}
+
+  netbsd-x64:
+    name: >
       ${{ matrix.os.uname }}
       ${{ matrix.os.version }}
       ${{ matrix.os.arch }}
