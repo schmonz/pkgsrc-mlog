@@ -16,9 +16,9 @@ die() {
 
 compute_cache_prefix() {
 	lname="$1"; shift
-	version="$1"; shift
 	arch="$1"; shift
-	echo cached-${lname}-${version}-${arch}$(echo ${SCHMONZ_PREFIX} | sed -e 's|/|-|g')
+	version="$1"; shift
+	echo cached-${lname}-${arch}-${version}$(echo ${SCHMONZ_PREFIX} | sed -e 's|/|-|g')
 }
 
 restore_bootstrap_or_rebootstrap() {
@@ -45,8 +45,8 @@ build_this_package() {
 
 prepare_release_artifacts() {
 	lname="$1"; shift
-	version="$1"; shift
 	arch="$1"; shift
+	version="$1"; shift
 
 	mkdir release-contents
 	(
@@ -60,7 +60,7 @@ prepare_release_artifacts() {
 	(
 		cd release-contents
 		for i in *.tgz; do
-			mv $i ${lname}-${version}-${arch}-$i
+			mv $i ${lname}-${arch}-${version}-$i
 		done
 	)
 
@@ -78,19 +78,19 @@ avoid_unneeded_big_slow_rsync() {
 }
 
 main() {
-	[ $# = 3 ] || die "usage: $0 lname version arch"
+	[ $# = 3 ] || die "usage: $0 lname arch version"
 	[ "$(id -u)" -eq 0 ] || die "script assumes it'll be run as root"
 
 	lname="$1"; shift
-	version="$1"; shift
 	arch="$1"; shift
-	cache_prefix=$(compute_cache_prefix ${lname} ${version} ${arch})
+	version="$1"; shift
+	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${version})
 
 	unset PKG_PATH
 	restore_bootstrap_or_rebootstrap ${cache_prefix}
 	PATH="${SCHMONZ_PREFIX}"/sbin:"${SCHMONZ_PREFIX}"/bin:${PATH}
 	build_this_package
-	prepare_release_artifacts ${lname} ${version} ${arch}
+	prepare_release_artifacts ${lname} ${arch} ${version}
 	move_bootstrap_somewhere_cacheable ${cache_prefix}
 	avoid_unneeded_big_slow_rsync
 }

@@ -30,8 +30,8 @@ jobs:
   freebsd-x64:
     name: >
       ${{ matrix.os.uname }}
-      ${{ matrix.os.version }}
       ${{ matrix.os.arch }}
+      ${{ matrix.os.version }}
     runs-on: ${{ matrix.os.host }}
     strategy:
       fail-fast: true
@@ -39,8 +39,8 @@ jobs:
         os:
           - uname: FreeBSD
             lname: freebsd
-            version: '14.0'
             arch: amd64
+            version: '14.0'
             host: ubuntu-latest
             prep: |
               set -e
@@ -55,9 +55,9 @@ jobs:
       id: bootstrap-restore
       uses: actions/cache/restore@v4
       with:
-        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
-        key: ${{ matrix.os.uname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-bootstrap-${{ github.run_id }}
-        restore-keys: ${{ matrix.os.uname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-bootstrap-
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-opt-pkg
+        key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
+        restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-
 
     - name: Build bootstrap and packages
       id: bootstrap-build
@@ -65,6 +65,7 @@ jobs:
       with:
         release: ${{ matrix.os.version }}
         usesh: true
+        sync: sshfs
         prepare: |
           set -e
           ${{ matrix.os.prep }}
@@ -77,14 +78,14 @@ jobs:
           mkdir -p pkgsrc/schmonz
           mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}
           # do the real work
-          ${SHELL} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.version }} ${{ matrix.os.arch }}
+          ${SHELL} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}
 
     - name: Save bootstrap
       id: bootstrap-save
       uses: actions/cache/save@v4
       if: always()
       with:
-        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-opt-pkg
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Pretend to publish package
@@ -103,8 +104,8 @@ jobs:
   netbsd-x64:
     name: >
       ${{ matrix.os.uname }}
-      ${{ matrix.os.version }}
       ${{ matrix.os.arch }}
+      ${{ matrix.os.version }}
     runs-on: ${{ matrix.os.host }}
     strategy:
       fail-fast: true
@@ -112,8 +113,8 @@ jobs:
         os:
           - uname: NetBSD
             lname: netbsd
-            version: '9.3'
             arch: amd64
+            version: '9.3'
             host: ubuntu-latest
             prep: |
               set -e
@@ -128,9 +129,9 @@ jobs:
       id: bootstrap-restore
       uses: actions/cache/restore@v4
       with:
-        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
-        key: ${{ matrix.os.uname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-bootstrap-${{ github.run_id }}
-        restore-keys: ${{ matrix.os.uname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-bootstrap-
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-opt-pkg
+        key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
+        restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-
 
     - name: Build bootstrap and packages
       id: bootstrap-build
@@ -138,6 +139,7 @@ jobs:
       with:
         release: ${{ matrix.os.version }}
         usesh: true
+        sync: rsync
         prepare: |
           set -e
           ${{ matrix.os.prep }}
@@ -150,14 +152,14 @@ jobs:
           mkdir -p pkgsrc/schmonz
           mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}
           # do the real work
-          ${SHELL} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.version }} ${{ matrix.os.arch }}
+          ${SHELL} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}
 
     - name: Save bootstrap
       id: bootstrap-save
       uses: actions/cache/save@v4
       if: always()
       with:
-        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-opt-pkg
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-opt-pkg
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Pretend to publish package
