@@ -60,7 +60,7 @@ prepare_release_artifacts() {
 	(
 		cd release-contents
 		for i in *.tgz; do
-			mv $i vmactions-${lname}-${version}-${arch}-$i
+			mv $i ${lname}-${version}-${arch}-$i
 		done
 	)
 
