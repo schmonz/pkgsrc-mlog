@@ -74,7 +74,7 @@ prepare_release_artifacts() {
 
 move_bootstrap_somewhere_cacheable() {
 	cache_prefix="$1"; shift
-	mv "${SCHMONZ_PREFIX}" "${cache_prefix}"
+	mv "${SCHMONZ_PREFIX}" "${cache_prefix}" || true
 }
 
 avoid_unneeded_big_slow_rsync() {
