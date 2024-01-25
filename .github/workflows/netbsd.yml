@@ -2,9 +2,6 @@ name: VM
 
 # TODO:
 #
-# 2. Extract the `run` script to a standalone shell script in the repo
-#    - Pass in any ${{ thingies }} it needs from GitHub contexts
-#
 # 3. Add native builds for Ubuntu, macOS
 #
 # 4. Set bootstrap prefix to match available binary package repos,
@@ -46,6 +43,7 @@ jobs:
             version: '9.3'
             arch: amd64
             host: ubuntu-latest
+            action: vmactions/netbsd-vm@v1
             prep: |
               set -e
               /usr/sbin/pkg_add git-base
@@ -65,7 +63,7 @@ jobs:
 
     - name: Build bootstrap and packages
       id: bootstrap-build
-      uses: vmactions/netbsd-vm@v1
+      uses: ${{ matrix.os.action }}
       with:
         release: ${{ matrix.os.version }}
         usesh: true
