@@ -2,6 +2,10 @@
 
 set -e
 
+SCHMONZ_PREFIX=/opt/pkg
+SCHMONZ_PREFIX_CACHEABLE="$(echo ${SCHMONZ_PREFIX} | sed -e 's|/|-|g')"
+SCHMONZ_CACHED_BOOTSTRAP="cached-${lname}-${version}-${arch}${SCHMONZ_PREFIX_CACHEABLE}"
+
 warn() {
 	echo >&2 "$@"
 }
@@ -16,13 +20,13 @@ restore_bootstrap_or_rebootstrap() {
 	version="$1"; shift
 	arch="$1"; shift
 
-	if [ -d cached-${lname}-${version}-${arch}-opt-pkg ]; then
-		mkdir -p /opt
-		mv cached-${lname}-${version}-${arch}-opt-pkg /opt/pkg
+	if [ -d "${SCHMONZ_CACHED_BOOTSTRAP}" ]; then
+		mkdir -p $(dirname "${SCHMONZ_PREFIX}")
+		mv "${SCHMONZ_CACHED_BOOTSTRAP}" "${SCHMONZ_PREFIX}"
 	else
 		(
 			cd pkgsrc/bootstrap
-			./bootstrap --prefix /opt/pkg
+			./bootstrap --prefix "${SCHMONZ_PREFIX}"
 			./cleanup
 		)
 	fi
@@ -61,7 +65,7 @@ prepare_release_artifacts() {
 }
 
 move_bootstrap_somewhere_cacheable() {
-	mv /opt/pkg cached-${lname}-${version}-${arch}-opt-pkg
+	mv "${SCHMONZ_PREFIX}" "${SCHMONZ_CACHED_BOOTSTRAP}"
 }
 
 avoid_unneeded_big_slow_rsync() {
@@ -78,7 +82,7 @@ main() {
 
 	unset PKG_PATH
 	restore_bootstrap_or_rebootstrap ${lname} ${version} ${arch}
-	PATH=/opt/pkg/sbin:/opt/pkg/bin:${PATH}
+	PATH="${SCHMONZ_PREFIX}"/sbin:"${SCHMONZ_PREFIX}"/bin:${PATH}
 	build_this_package
 	prepare_release_artifacts ${lname} ${version} ${arch}
 	move_bootstrap_somewhere_cacheable ${lname} ${version} ${arch}
