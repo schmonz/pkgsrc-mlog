@@ -90,9 +90,6 @@ main() {
 	version="$1"; shift
 	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${version})
 
-	warn "SCHMONZ: mounted filesystems:"
-	mount -v
-
 	unset PKG_PATH
 	restore_bootstrap_or_rebootstrap ${cache_prefix}
 	PATH="${SCHMONZ_PREFIX}"/sbin:"${SCHMONZ_PREFIX}"/bin:${PATH}
