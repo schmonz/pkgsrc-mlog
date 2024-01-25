@@ -30,7 +30,7 @@ restore_bootstrap_or_rebootstrap() {
 	else
 		(
 			cd pkgsrc/bootstrap
-			./bootstrap --prefix "${SCHMONZ_PREFIX}"
+			./bootstrap --workdir /var/tmp/pkgsrc --prefix "${SCHMONZ_PREFIX}"
 			./cleanup
 		)
 	fi
