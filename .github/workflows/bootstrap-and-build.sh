@@ -70,7 +70,7 @@ avoid_unneeded_big_slow_rsync() {
 
 main() {
 	[ $# = 3 ] || die "usage: $0 lname version arch"
-	[ $(id -u) eq 0 ] || die "script assumes it'll be run as root"
+	[ "$(id -u)" -eq 0 ] || die "script assumes it'll be run as root"
 
 	lname="$1"; shift
 	version="$1"; shift
