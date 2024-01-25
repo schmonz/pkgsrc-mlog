@@ -5,6 +5,11 @@ set -e
 # XXX parameterize
 SCHMONZ_PREFIX=/opt/pkg
 
+VAR_TMP=/var/tmp
+# WRKOBJDIR must not contain any symlinks
+[ -e /private ] && VAR_TMP=/private/var/tmp
+
+
 warn() {
 	echo >&2 "$@"
 }
@@ -30,8 +35,7 @@ restore_bootstrap_or_rebootstrap() {
 	else
 		(
 			cd pkgsrc/bootstrap
-			./bootstrap --workdir /var/tmp/pkgsrc --prefix "${SCHMONZ_PREFIX}"
-			./cleanup
+			./bootstrap --workdir ${VAR_TMP}/pkgsrc/bootstrap --prefix "${SCHMONZ_PREFIX}"
 		)
 	fi
 }
@@ -39,7 +43,7 @@ restore_bootstrap_or_rebootstrap() {
 build_this_package() {
 	(
 		cd pkgsrc/${GITHUB_REPOSITORY}
-		bmake package
+		bmake WRKOBJDIR=${VAR_TMP}/pkgsrc/obj package
 	)
 }
 
@@ -85,6 +89,9 @@ main() {
 	arch="$1"; shift
 	version="$1"; shift
 	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${version})
+
+	warn "SCHMONZ: mounted filesystems:"
+	mount -v
 
 	unset PKG_PATH
 	restore_bootstrap_or_rebootstrap ${cache_prefix}
