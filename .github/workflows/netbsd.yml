@@ -72,6 +72,8 @@ jobs:
           ${{ matrix.os.prep }}
         run: |
           set -e
+          # FreeBSD sshfs does work, albeit slowly for my purposes
+          /sbin/mount
           # work around vmactions bug
           mkdir -p $(dirname ${GITHUB_ENV})
           # fetch pkgsrc and overlay this repo
@@ -146,6 +148,8 @@ jobs:
           ${{ matrix.os.prep }}
         run: |
           set -e
+          # what's up with sshfs on NetBSD
+          /sbin/mount
           # work around vmactions bug
           mkdir -p $(dirname ${GITHUB_ENV})
           # fetch pkgsrc and overlay this repo
