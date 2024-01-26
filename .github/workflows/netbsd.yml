@@ -63,7 +63,7 @@ jobs:
             lname: omnios
             arch: amd64
             version: 'r151048'
-            prep: pkg install developer/gcc system/header developer/build/make git
+            prep: pkg install developer/versioning/git developer/gcc10 system/header developer/build/make
     steps:
     - name: Checkout
       uses: actions/checkout@v4
