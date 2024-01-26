@@ -53,17 +53,17 @@ jobs:
             lname: dragonflybsd
             arch: amd64
             version: '6.4.0'
-            prep: pkg install -y git
+            prep: pkg upgrade -y; pkg install -y git
           - uname: Solaris
             lname: solaris
             arch: amd64
-            version: '11.4'
+            version: '11.4-gcc'
             prep: pkgutil -y -i git
           - uname: OmniOS
             lname: omnios
             arch: amd64
             version: 'r151048'
-            prep: pkg install git
+            prep: pkg install developer/gcc6 system/header developer/build/make git
     steps:
     - name: Checkout
       uses: actions/checkout@v4
