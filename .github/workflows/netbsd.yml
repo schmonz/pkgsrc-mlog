@@ -44,6 +44,26 @@ jobs:
             arch: amd64
             version: '9.3'
             prep: /usr/sbin/pkg_add git-base
+          - uname: OpenBSD
+            lname: openbsd
+            arch: amd64
+            version: '7.4'
+            prep: pkg_add git
+          - uname: DragonFlyBSD
+            lname: dragonflybsd
+            arch: amd64
+            version: '6.4.0'
+            prep: pkg install -y git
+          - uname: Solaris
+            lname: solaris
+            arch: amd64
+            version: '11.4'
+            prep: pkgutil -y -i git
+          - uname: OmniOS
+            lname: omnios
+            arch: amd64
+            version: 'r151048'
+            prep: pkg install git
     steps:
     - name: Checkout
       uses: actions/checkout@v4
