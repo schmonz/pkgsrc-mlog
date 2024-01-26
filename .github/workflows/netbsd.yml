@@ -140,7 +140,7 @@ jobs:
       with:
         release: ${{ matrix.os.version }}
         usesh: true
-        sync: rsync
+        sync: sshfs
         prepare: |
           set -e
           ${{ matrix.os.prep }}
