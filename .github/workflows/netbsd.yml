@@ -2,11 +2,6 @@ name: VM
 
 # TODO:
 #
-# 2. Raise vmactions issues:
-#    - I shouldn't have to mkdir ${GITHUB_ENV}'s parent dir (NetBSD only?)
-#    - if sshfs is reliable and fast on all platforms, clone pkgsrc only 1x (on the host)
-#    - How can I define a matrix mapping from guest OS to vmactions/foo-vm?
-#
 # 3. Add native builds for Ubuntu, macOS
 #
 # 4. Set bootstrap prefix to match available binary package repos,
@@ -21,6 +16,8 @@ name: VM
 #    - File an issue requesting NetBSD 10 aarch64
 #
 # 7. Publish all available binary packages
+#
+# 8. if sshfs can be reliable and fast on all platforms, clone pkgsrc only 1x (on the host)
 
 on:
   push:
@@ -74,7 +71,7 @@ jobs:
           # FreeBSD sshfs does work, albeit slowly for my purposes
           /sbin/mount
           # work around vmactions bug
-          #mkdir -p $(dirname ${GITHUB_ENV})
+          mkdir -p $(dirname ${GITHUB_ENV})
           # fetch pkgsrc and overlay this repo
           git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
           mkdir -p pkgsrc/schmonz
@@ -150,7 +147,7 @@ jobs:
           # what's up with sshfs on NetBSD
           /sbin/mount
           # work around vmactions bug
-          #mkdir -p $(dirname ${GITHUB_ENV})
+          mkdir -p $(dirname ${GITHUB_ENV})
           # fetch pkgsrc and overlay this repo
           git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc
           mkdir -p pkgsrc/schmonz
