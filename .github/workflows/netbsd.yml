@@ -40,7 +40,7 @@ jobs:
             version: '14.0'
             host: ubuntu-latest
             prep: |
-              set -e
+              set -e;
               pkg install -y git
     steps:
     - name: Checkout
@@ -66,7 +66,7 @@ jobs:
             "release": "${{ matrix.os.version }}",
             "usesh": "true",
             "sync": "rsync",
-            "prepare": "set -e; ${{ matrix.os.prep }}",
+            "prepare": "${{ matrix.os.prep }}",
             "run": "set -e; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ${SHELL} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}"
           }
 
