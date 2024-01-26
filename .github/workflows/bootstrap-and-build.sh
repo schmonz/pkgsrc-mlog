@@ -1,6 +1,7 @@
 #!/bin/sh
 
-set -e
+# XXX DragonFly barfs on this?
+#set -e
 
 # XXX parameterize
 SCHMONZ_PREFIX=/opt/pkg
