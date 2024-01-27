@@ -58,7 +58,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: 
+            prep: gcc g++ procps coreutils gawk linux-headers git
 
           - uname: Alpine
             lname: alpine
@@ -66,7 +66,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: 
+            prep: gcc g++ procps coreutils gawk linux-headers git
 
           - uname: Alpine
             lname: alpine
@@ -74,7 +74,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: 
+            prep: gcc g++ procps coreutils gawk linux-headers git
 
           - uname: Alpine
             lname: alpine
@@ -82,7 +82,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: 
+            prep: gcc g++ procps coreutils gawk linux-headers git
 
           - uname: Alpine
             lname: alpine
@@ -90,7 +90,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: 
+            prep: gcc g++ procps coreutils gawk linux-headers git
 
           - uname: Alpine
             lname: alpine
@@ -98,7 +98,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: 
+            prep: gcc g++ procps coreutils gawk linux-headers git
 
           - uname: Alpine
             lname: alpine
@@ -106,7 +106,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: 
+            prep: gcc g++ procps coreutils gawk linux-headers git
 
           - uname: DragonFlyBSD
             lname: dragonflybsd
@@ -193,9 +193,9 @@ jobs:
         key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-
 
-    - name: Build (alpine setup)
+    - name: Build (alpine prep)
       if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
-      id: bootstrap-build-alpine-setup
+      id: bootstrap-build-alpine-prep
       uses: jirutka/setup-alpine@v1
       with:
         branch: ${{ matrix.os.version }}
@@ -206,7 +206,7 @@ jobs:
       id: bootstrap-build-alpine
       shell: alpine.sh --root {0}
       run: |
-        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}
 
     - name: Build (cross-platform-actions)
       if: ${{ false && startsWith(matrix.os.guest, 'cross-platform-actions/') }}
