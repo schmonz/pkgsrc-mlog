@@ -17,7 +17,7 @@ compute_cache_prefix() {
 	abi="$1"; shift
 	version="$1"; shift
 	pkgsrc_prefix="$1"; shift
-	echo cached-${lname}-${arch}-${abi}${version}$(echo ${pkgsrc_prefix} | sed -e 's|/|-|g')
+	echo cached-${lname}-${arch}-${abi}-${version}$(echo ${pkgsrc_prefix} | sed -e 's|/|-|g')
 }
 
 compute_var_tmp() {
