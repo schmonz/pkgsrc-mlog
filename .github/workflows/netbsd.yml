@@ -99,7 +99,7 @@ jobs:
             version: '11.4-gcc' # XXX include compiler in all package filenames, but not specially here
             host: ubuntu-latest
             # no guest
-            prep: pkgutil -y -i git
+            prep: echo hi
     steps:
     - name: Checkout
       uses: actions/checkout@v4
