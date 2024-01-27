@@ -35,7 +35,7 @@ restore_bootstrap_or_rebootstrap() {
 	else
 		(
 			cd pkgsrc/bootstrap
-			./bootstrap --workdir ${VAR_TMP}/pkgsrc/bootstrap --prefix "${SCHMONZ_PREFIX}"
+			./bootstrap --workdir ${VAR_TMP}/pkgsrc/bootstrap --prefix "${SCHMONZ_PREFIX}" || cat ${VAR_TMP}/pkgsrc/bootstrap/wrk/pkgtools/cwrappers/work/libnbcompat/config.log
 		)
 	fi
 }
