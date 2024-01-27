@@ -126,7 +126,7 @@ jobs:
           - uname: FreeBSD
             lname: freebsd
             arch: arm64
-            version: '14.0'
+            version: '13.2'
             host: ubuntu-latest
             guest: cross-platform-actions/action@v0.22.0
             prep: pkg install -y git
