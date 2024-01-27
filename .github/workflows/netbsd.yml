@@ -96,7 +96,7 @@ jobs:
           - uname: Ubuntu
             lname: ubuntu
             arch: amd64
-            version: '11.4-gcc' # XXX include compiler in all package filenames, but not specially here
+            version: 'latest'
             host: ubuntu-latest
             # no guest
             prep: echo hi
@@ -134,7 +134,7 @@ jobs:
       id: bootstrap-build-native
       run:
         set -e; ${{ matrix.os.prep }}
-        set -e; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}
 
     - name: Save bootstrap
       id: bootstrap-save
