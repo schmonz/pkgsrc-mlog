@@ -2,29 +2,38 @@ name: VM
 
 # TODO:
 #
-# 3. Add native builds for Ubuntu, macOS
-#
-# 4. Set bootstrap prefix to match available binary package repos,
+# 1. Set bootstrap prefix to match available binary package repos,
 #    or else the default for the platform
 #    - mostly /usr/pkg (and /usr/pkg/pkgdb)
 #    - macOS: /opt/pkg to avoid SIP and match pkgsrc.smartos.org
 #    - SmartOS: what's the default in their repos?
 #
-# 5. Add all available vmactions platforms
+# 2. Include compiler, prefix, and ABI in the publishable filenames
+#    - And anything else my self-hosted VMs would cook into ${PACKAGES}
 #
-# 6. Add non-x86 BSD platforms via cross-platform-actions
+# 3. Add non-x86 BSD platforms via cross-platform-actions
 #    - File an issue requesting NetBSD 10 aarch64
 #
-# 7. Publish all available binary packages
+# 4. Add native builds for Ubuntu, macOS
 #
-# 8. if sshfs can be reliable and fast on all platforms, clone pkgsrc only 1x (on the host)
+# 5. If branch == main, publish all the binary packages
+#    - pkgsrc commit message with the changelog -> GitHub release notes
+#
+# 6. if sshfs can be reliable and fast on all platforms, clone pkgsrc only 1x (on the host)
+#    - else try one more time to actions/cache pkgsrc on the host
+#
+# 7. Publish this as a GitHub Action!
+#
+# 8. Use it in all my package repos
+#
+# 9. Tell other pkgsrc developers about it
 
 on:
   push:
     branches: [main]
 
 jobs:
-  vmactions:
+  build-on-all-available-vmactions:
     name: >
       ${{ matrix.os.uname }}
       ${{ matrix.os.arch }}
@@ -34,6 +43,11 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          - uname: DragonFlyBSD
+            lname: dragonflybsd
+            arch: amd64
+            version: '6.4.0'
+            prep: pkg upgrade -y; pkg install -y git
           - uname: FreeBSD
             lname: freebsd
             arch: amd64
@@ -44,26 +58,21 @@ jobs:
             arch: amd64
             version: '9.3'
             prep: /usr/sbin/pkg_add git-base
-          - uname: OpenBSD
-            lname: openbsd
-            arch: amd64
-            version: '7.4'
-            prep: pkg_add git
-          - uname: DragonFlyBSD
-            lname: dragonflybsd
-            arch: amd64
-            version: '6.4.0'
-            prep: pkg upgrade -y; pkg install -y git
-          - uname: Solaris
-            lname: solaris
-            arch: amd64
-            version: '11.4-gcc'
-            prep: pkgutil -y -i git
           - uname: OmniOS
             lname: omnios
             arch: amd64
             version: 'r151048'
             prep: pkg install developer/versioning/git developer/gcc10 system/header developer/build/make
+          - uname: OpenBSD
+            lname: openbsd
+            arch: amd64
+            version: '7.4'
+            prep: pkg_add git
+          - uname: Solaris
+            lname: solaris
+            arch: amd64
+            version: '11.4-gcc' # XXX include compiler in all package filenames, but not specially here
+            prep: pkgutil -y -i git
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -105,6 +114,14 @@ jobs:
         set -e
         echo "VERSION: version ${{ env.release_version }}"
         echo "FILE: ${{ env.release_asset }}"
+
+  publish-all-binary-packages:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Pretend to publish all binary packages
+      run: |
+        set -e
+        ls release-contents/*.tgz
 
     - name: Publish package
       uses: softprops/action-gh-release@v1
