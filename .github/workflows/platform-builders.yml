@@ -139,9 +139,9 @@ jobs:
     - name: Build (native)
       if: ${{ ! startsWith(matrix.os.guest, 'vmactions/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') }}
       id: bootstrap-build-native
+      #set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}
       run:
         set -e; ${{ matrix.os.prep }}
-        #set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}
         set -e; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} printenv
 
     - name: Save bootstrap
