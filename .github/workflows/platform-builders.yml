@@ -39,7 +39,6 @@ jobs:
       ${{ matrix.os.uname }}
       ${{ matrix.os.arch }}
       ${{ matrix.os.version }}
-      # ABI, compiler, prefix
     runs-on: ${{ matrix.os.host }}
     strategy:
       fail-fast: false
@@ -60,6 +59,14 @@ jobs:
             host: ubuntu-latest
             guest: vmactions/freebsd-vm@v1
             prep: pkg install -y git
+
+          - uname: macOS
+            lname: macos
+            arch: amd64
+            version: 'latest'
+            host: macos-latest
+            # no guest
+            prep: echo hi
 
           - uname: NetBSD
             lname: netbsd
@@ -115,7 +122,7 @@ jobs:
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-
 
     - name: Build (vmactions)
-      if: ${{ startsWith(matrix.os.guest, 'vmactions/') }}
+      if: ${{ false && startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-vmactions
       uses: jenseng/dynamic-uses@v1
       with:
