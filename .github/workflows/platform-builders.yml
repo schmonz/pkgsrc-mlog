@@ -129,7 +129,7 @@ jobs:
             version: '13.2'
             host: ubuntu-latest
             guest: cross-platform-actions/action@v0.22.0
-            prep: pkg install -y git
+            prep: sudo pkg install -y git
 
           - uname: macOS
             lname: macos
