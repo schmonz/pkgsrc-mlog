@@ -194,7 +194,7 @@ jobs:
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-
 
     - name: Build (alpine setup)
-      if: ${{ startsWith(matrix.os.guest, 'jirutka/setup-alpine/') }}
+      if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine-setup
       uses: jirutka/setup-alpine@v1
       with:
@@ -202,7 +202,7 @@ jobs:
         arch: ${{ matrix.os.arch }}
         packages: ${{ matrix.os.prep }}
     - name: Build (alpine)
-      if: ${{ startsWith(matrix.os.guest, 'jirutka/setup-alpine/') }}
+      if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine
       shell: alpine.sh --root {0}
       run: |
