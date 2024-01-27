@@ -84,7 +84,7 @@ avoid_unneeded_big_slow_rsync() {
 }
 
 main() {
-	[ $# = 3 ] || die "usage: $0 lname arch version"
+	[ $# = 4 ] || die "usage: $0 lname arch abi version"
 	[ "$(id -u)" -eq 0 ] || die "script assumes it'll be run as root"
 
 	lname="$1"; shift
