@@ -50,7 +50,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: build-base git
+            prep: gcc g++ procps coreutils gawk linux-headers git
 
           - uname: Alpine
             lname: alpine
@@ -58,7 +58,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: build-base check check-dev pkgconf
+            prep: 
 
           - uname: Alpine
             lname: alpine
@@ -66,7 +66,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: build-base check check-dev pkgconf
+            prep: 
 
           - uname: Alpine
             lname: alpine
@@ -74,7 +74,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: build-base check check-dev pkgconf
+            prep: 
 
           - uname: Alpine
             lname: alpine
@@ -82,7 +82,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: build-base check check-dev pkgconf
+            prep: 
 
           - uname: Alpine
             lname: alpine
@@ -90,7 +90,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: build-base check check-dev pkgconf
+            prep: 
 
           - uname: Alpine
             lname: alpine
@@ -98,7 +98,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: build-base check check-dev pkgconf
+            prep: 
 
           - uname: Alpine
             lname: alpine
@@ -106,7 +106,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: build-base check check-dev pkgconf
+            prep: 
 
           - uname: DragonFlyBSD
             lname: dragonflybsd
