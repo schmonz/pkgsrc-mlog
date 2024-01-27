@@ -22,6 +22,8 @@ name: VM
 # 6. if sshfs can be reliable and fast on all platforms, clone pkgsrc only 1x (on the host)
 #    - else try one more time to actions/cache pkgsrc on the host
 #
+# 7. Review the code, looking for anything I might ever need to update
+#    - figure out how to be notified about updates
 # 7. Publish this as a GitHub Action!
 #
 # 8. Use it in all my package repos

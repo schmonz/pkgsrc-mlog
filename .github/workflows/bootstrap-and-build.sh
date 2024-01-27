@@ -2,14 +2,6 @@
 
 set -e
 
-# XXX parameterize
-SCHMONZ_PREFIX=/opt/pkg
-
-VAR_TMP=/var/tmp
-# WRKOBJDIR must not contain any symlinks
-[ -e /private ] && VAR_TMP=/private/var/tmp
-
-
 warn() {
 	echo >&2 "$@"
 }
@@ -24,27 +16,44 @@ compute_cache_prefix() {
 	arch="$1"; shift
 	abi="$1"; shift
 	version="$1"; shift
-	echo cached-${lname}-${arch}-${abi}${version}$(echo ${SCHMONZ_PREFIX} | sed -e 's|/|-|g')
+	pkgsrc_prefix="$1"; shift
+	echo cached-${lname}-${arch}-${abi}${version}$(echo ${pkgsrc_prefix} | sed -e 's|/|-|g')
+}
+
+compute_var_tmp() {
+	if [ -e /private ]; then
+		# WRKOBJDIR must not contain any symlinks
+		echo /private/var/tmp
+	else
+		echo var/tmp
+	fi
 }
 
 restore_bootstrap_or_rebootstrap() {
 	cache_prefix="$1"; shift
+	abi="$1"; shift
+	pkgsrc_prefix="$1"; shift
+	var_tmp="$1"; shift
 
 	if [ -d "${cache_prefix}" ]; then
-		mkdir -p $(dirname "${SCHMONZ_PREFIX}")
-		mv "${cache_prefix}" "${SCHMONZ_PREFIX}"
+		mkdir -p $(dirname "${pkgsrc_prefix}")
+		mv "${cache_prefix}" "${pkgsrc_prefix}"
 	else
 		(
 			cd pkgsrc/bootstrap
-			./bootstrap --workdir ${VAR_TMP}/pkgsrc/bootstrap --prefix "${SCHMONZ_PREFIX}" || cat ${VAR_TMP}/pkgsrc/bootstrap/wrk/pkgtools/cwrappers/work/libnbcompat/config.log
+			./bootstrap \
+				--abi ${abi} \
+				--workdir ${var_tmp}/pkgsrc/bootstrap \
+				--prefix "${pkgsrc_prefix}" || cat ${var_tmp}/pkgsrc/bootstrap/wrk/pkgtools/cwrappers/work/libnbcompat/config.log
 		)
 	fi
 }
 
 build_this_package() {
+	var_tmp="$1"; shift
 	(
 		cd pkgsrc/${GITHUB_REPOSITORY}
-		bmake WRKOBJDIR=${VAR_TMP}/pkgsrc/obj package
+		bmake WRKOBJDIR=${var_tmp}/pkgsrc/obj package
 	)
 }
 
@@ -76,7 +85,8 @@ prepare_release_artifacts() {
 
 move_bootstrap_somewhere_cacheable() {
 	cache_prefix="$1"; shift
-	cp -Rp "${SCHMONZ_PREFIX}" "${cache_prefix}" || true
+	pkgsrc_prefix="$1"; shift
+	cp -Rp "${pkgsrc_prefix}" "${cache_prefix}" || true
 }
 
 avoid_unneeded_big_slow_rsync() {
@@ -87,18 +97,21 @@ main() {
 	[ $# = 4 ] || die "usage: $0 lname arch abi version"
 	[ "$(id -u)" -eq 0 ] || die "script assumes it'll be run as root"
 
-	lname="$1"; shift
 	arch="$1"; shift
 	abi="$1"; shift
 	version="$1"; shift
-	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${abi} ${version})
+	lname="$1"; shift
+
+	pkgsrc_prefix=/opt/pkg	# XXX parameterize
+	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix})
+	var_tmp=$(compute_var_tmp)
 
 	unset PKG_PATH
-	restore_bootstrap_or_rebootstrap ${cache_prefix}
-	PATH="${SCHMONZ_PREFIX}"/sbin:"${SCHMONZ_PREFIX}"/bin:${PATH}
-	build_this_package
+	restore_bootstrap_or_rebootstrap ${cache_prefix} ${abi} ${pkgsrc_prefix} ${var_tmp}
+	PATH="${pkgsrc_prefix}"/sbin:"${pkgsrc_prefix}"/bin:${PATH}
+	build_this_package ${var_tmp}
 	prepare_release_artifacts ${lname} ${arch} ${abi} ${version}
-	move_bootstrap_somewhere_cacheable ${cache_prefix}
+	move_bootstrap_somewhere_cacheable ${cache_prefix} ${pkgsrc_prefix}
 	avoid_unneeded_big_slow_rsync
 }
 
