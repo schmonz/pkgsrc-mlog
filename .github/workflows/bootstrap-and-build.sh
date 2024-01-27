@@ -97,10 +97,10 @@ main() {
 	[ $# = 4 ] || die "usage: $0 lname arch abi version"
 	[ "$(id -u)" -eq 0 ] || die "script assumes it'll be run as root"
 
+	lname="$1"; shift
 	arch="$1"; shift
 	abi="$1"; shift
 	version="$1"; shift
-	lname="$1"; shift
 
 	pkgsrc_prefix=/opt/pkg	# XXX parameterize
 	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix})
