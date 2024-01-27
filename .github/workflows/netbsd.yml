@@ -44,8 +44,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        run: "set -e; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}"
-
         os:
           - uname: DragonFlyBSD
             lname: dragonflybsd
