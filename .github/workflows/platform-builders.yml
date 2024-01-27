@@ -246,7 +246,7 @@ jobs:
           }
 
     - name: Build (native)
-      if: ${{ ! startsWith(matrix.os.guest, 'vmactions/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') }}
+      if: ${{ ! startsWith(matrix.os.guest, 'jirutka/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') && ! startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-native
       run:
         set -e; ${{ matrix.os.prep }}
