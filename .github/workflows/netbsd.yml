@@ -33,7 +33,7 @@ on:
     branches: [main]
 
 jobs:
-  build-on-all-available-vmactions:
+  build-all-vmactions:
     name: >
       ${{ matrix.os.uname }}
       ${{ matrix.os.arch }}
@@ -115,7 +115,8 @@ jobs:
         echo "VERSION: version ${{ env.release_version }}"
         echo "FILE: ${{ env.release_asset }}"
 
-  publish-all-binary-packages:
+  publish-all-packages:
+    needs: [ build-all-vmactions ]
     runs-on: ubuntu-latest
     steps:
     - name: Pretend to publish all binary packages
