@@ -65,7 +65,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: armhf
-            abi: 32
+            abi: 64
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -74,7 +74,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: armv7
-            abi: 32
+            abi: 64
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -110,7 +110,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: s390x
-            abi: 32
+            abi: 64
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -220,7 +220,7 @@ jobs:
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-
 
     - name: Build (alpine prep)
-      if: ${{ matrix.os.abi == '32' && startsWith(matrix.os.guest, 'jirutka/') }}
+      if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine-prep
       uses: jirutka/setup-alpine@v1
       with:
@@ -228,7 +228,7 @@ jobs:
         arch: ${{ matrix.os.arch }}
         packages: ${{ matrix.os.prep }}
     - name: Build (alpine)
-      if: ${{ matrix.os.abi == '32' && startsWith(matrix.os.guest, 'jirutka/') }}
+      if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine
       shell: alpine.sh --root {0}
       run: |
