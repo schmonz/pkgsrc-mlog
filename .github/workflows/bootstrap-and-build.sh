@@ -25,7 +25,7 @@ compute_var_tmp() {
 		# WRKOBJDIR must not contain any symlinks
 		echo /private/var/tmp
 	else
-		echo var/tmp
+		echo /var/tmp
 	fi
 }
 
