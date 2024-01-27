@@ -50,7 +50,7 @@ jobs:
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
-            prep: build-base check check-dev pkgconf
+            prep: build-base git
 
           - uname: Alpine
             lname: alpine
