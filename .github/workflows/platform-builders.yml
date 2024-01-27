@@ -2,6 +2,8 @@ name: VM
 
 # TODO:
 #
+# XXX what happened to my cache paths, they ain't pathin
+#
 # 1. Set bootstrap prefix to match available binary package repos,
 #    or else the default for the platform
 #    - mostly /usr/pkg (and /usr/pkg/pkgdb)
@@ -222,7 +224,7 @@ jobs:
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-
 
     - name: Build (alpine prep)
-      if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
+      if: ${{ false && startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine-prep
       uses: jirutka/setup-alpine@v1
       with:
@@ -230,14 +232,14 @@ jobs:
         arch: ${{ matrix.os.arch }}
         packages: ${{ matrix.os.prep }}
     - name: Build (alpine)
-      if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
+      if: ${{ false && startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine
       shell: alpine.sh --root {0}
       run: |
         set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }}
 
     - name: Build (cross-platform-actions)
-      if: ${{ startsWith(matrix.os.guest, 'cross-platform-actions/') }}
+      if: ${{ false && startsWith(matrix.os.guest, 'cross-platform-actions/') }}
       id: bootstrap-build-cross-platform-actions
       uses: jenseng/dynamic-uses@v1
       with:
@@ -263,11 +265,11 @@ jobs:
             "usesh": true,
             "sync": "sshfs",
             "prepare": "set -e; ${{ matrix.os.prep }}",
-            "run": "set -e; /sbin/mount; cd /home/runner/work; pwd; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }}"
+            "run": "set -e; /sbin/mount; pwd; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }}"
           }
 
     - name: Build (native)
-      if: ${{ ! startsWith(matrix.os.guest, 'jirutka/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') && ! startsWith(matrix.os.guest, 'vmactions/') }}
+      if: ${{ false && ! startsWith(matrix.os.guest, 'jirutka/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') && ! startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-native
       run:
         set -e; ${{ matrix.os.prep }}
