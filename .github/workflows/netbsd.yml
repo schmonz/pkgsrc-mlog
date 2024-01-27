@@ -115,7 +115,7 @@ jobs:
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-
 
     - name: Build (vmactions)
-      if: startsWith(matrix.os.guest, 'vmactions/')
+      if: ${{ startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-vmactions
       uses: jenseng/dynamic-uses@v1
       with:
@@ -130,7 +130,7 @@ jobs:
           }
 
     - name: Build (native)
-      if: ! startsWith(matrix.os.guest, 'vmactions/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/')
+      if: ${{ ! startsWith(matrix.os.guest, 'vmactions/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') }}
       id: bootstrap-build-native
       run:
         set -e; ${{ matrix.os.prep }}
