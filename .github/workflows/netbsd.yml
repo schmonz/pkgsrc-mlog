@@ -18,6 +18,7 @@ name: VM
 #
 # 5. If branch == main, publish all the binary packages
 #    - pkgsrc commit message with the changelog -> GitHub release notes
+#    - borrow from <https://github.com/FWDekker/mommy/blob/dev/.github/workflows/cd.yml>
 #
 # 6. if sshfs can be reliable and fast on all platforms, clone pkgsrc only 1x (on the host)
 #    - else try one more time to actions/cache pkgsrc on the host
@@ -33,45 +34,73 @@ on:
     branches: [main]
 
 jobs:
-  build-all-vmactions:
+  build-all-packages:
     name: >
       ${{ matrix.os.uname }}
       ${{ matrix.os.arch }}
       ${{ matrix.os.version }}
-    runs-on: ubuntu-latest
+      # ABI, compiler, prefix
+    runs-on: ${{ matrix.os.host }}
     strategy:
       fail-fast: false
       matrix:
+        run: "set -e; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}"
+
         os:
           - uname: DragonFlyBSD
             lname: dragonflybsd
             arch: amd64
             version: '6.4.0'
+            host: ubuntu-latest
+            guest: vmactions/dragonflybsd-vm@v1
             prep: pkg upgrade -y; pkg install -y git
+
           - uname: FreeBSD
             lname: freebsd
             arch: amd64
             version: '14.0'
+            host: ubuntu-latest
+            guest: vmactions/freebsd-vm@v1
             prep: pkg install -y git
+
           - uname: NetBSD
             lname: netbsd
             arch: amd64
             version: '9.3'
+            host: ubuntu-latest
+            guest: vmactions/netbsd-vm@v1
             prep: /usr/sbin/pkg_add git-base
+
           - uname: OmniOS
             lname: omnios
             arch: amd64
             version: 'r151048'
+            host: ubuntu-latest
+            guest: vmactions/omnios-vm@v1
             prep: pkg install developer/versioning/git developer/gcc10 system/header developer/build/make
+
           - uname: OpenBSD
             lname: openbsd
             arch: amd64
             version: '7.4'
+            host: ubuntu-latest
+            guest: vmactions/openbsd-vm@v1
             prep: pkg_add git
+
           - uname: Solaris
             lname: solaris
             arch: amd64
             version: '11.4-gcc' # XXX include compiler in all package filenames, but not specially here
+            host: ubuntu-latest
+            guest: vmactions/solaris-vm@v1
+            prep: pkgutil -y -i git
+
+          - uname: Ubuntu
+            lname: ubuntu
+            arch: amd64
+            version: '11.4-gcc' # XXX include compiler in all package filenames, but not specially here
+            host: ubuntu-latest
+            # no guest
             prep: pkgutil -y -i git
     steps:
     - name: Checkout
@@ -87,11 +116,12 @@ jobs:
         key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-
 
-    - name: Build bootstrap and packages
-      id: bootstrap-build
+    - name: Build (vmactions)
+      if: startsWith(matrix.os.guest, 'vmactions/')
+      id: bootstrap-build-vmactions
       uses: jenseng/dynamic-uses@v1
       with:
-        uses: vmactions/${{ matrix.os.lname }}-vm@v1
+        uses: ${{ matrix.os.guest }}
         with: |
           {
             "release": "${{ matrix.os.version }}",
@@ -100,6 +130,16 @@ jobs:
             "prepare": "set -e; ${{ matrix.os.prep }}",
             "run": "set -e; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}"
           }
+
+    - name: Build (native)
+      if: ! startsWith(matrix.os.guest, 'vmactions/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/')
+      id: bootstrap-build-native
+      with:
+        release: ${{ matrix.os.version }}
+        usesh: true
+        sync: rsync
+        prepare: set -e; ${{ matrix.os.prep }}
+        run: set -e; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}
 
     - name: Save bootstrap
       id: bootstrap-save
@@ -114,19 +154,3 @@ jobs:
         set -e
         echo "VERSION: version ${{ env.release_version }}"
         echo "FILE: ${{ env.release_asset }}"
-
-  publish-all-packages:
-    needs: [ build-all-vmactions ]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Pretend to publish all binary packages
-      run: |
-        set -e
-        ls release-contents/*.tgz
-
-    - name: Publish package
-      uses: softprops/action-gh-release@v1
-      if: false
-      with:
-        files: ${{ env.release_asset }}
-        name: ${{ env.release_version }}
