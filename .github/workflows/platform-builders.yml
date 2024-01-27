@@ -13,8 +13,8 @@ name: VM
 #
 # 3. Add non-x86 BSD platforms via cross-platform-actions
 #    - File an issue requesting NetBSD 10 aarch64
-#
-# 4. Add native builds for Ubuntu, macOS
+# 
+# 4. Add Alpine builds for all available platforms
 #
 # 5. If branch == main, publish all the binary packages
 #    - pkgsrc commit message with the changelog -> GitHub release notes
@@ -44,6 +44,14 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          - uname: Alpine
+            lname: alpine
+            arch: ["x86_64", "x86", "armhf", "armv7", "aarch64", "ppc64le", "riscv64", "s390x"]
+            version: 'edge'
+            host: ubuntu-latest
+            guest: jirutka/setup-alpine@v1
+            prep: build-base check check-dev pkgconf
+
           - uname: DragonFlyBSD
             lname: dragonflybsd
             arch: amd64
@@ -65,8 +73,8 @@ jobs:
             arch: amd64
             version: 'latest'
             host: macos-latest
-            # no guest
-            prep: echo hi
+            guest: 
+            prep: 
 
           - uname: NetBSD
             lname: netbsd
@@ -113,8 +121,8 @@ jobs:
             arch: amd64
             version: 'latest'
             host: ubuntu-latest
-            # no guest
-            prep: echo hi
+            guest: 
+            prep: 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -129,8 +137,23 @@ jobs:
         key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-
 
+    - name: Build (alpine setup)
+      if: ${{ startsWith(matrix.os.guest, 'jirutka/setup-alpine/') }}
+      id: bootstrap-build-alpine-setup
+      uses: jirutka/setup-alpine@v1
+      with:
+        branch: ${{ matrix.os.version }}
+        arch: ${{ matrix.os.arch }}
+        packages: ${{ matrix.os.prep }}
+    - name: Build (alpine)
+      if: ${{ startsWith(matrix.os.guest, 'jirutka/setup-alpine/') }}
+      id: bootstrap-build-alpine
+      shell: alpine.sh --root {0}
+      run: |
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }}
+
     - name: Build (cross-platform-actions)
-      if: ${{ startsWith(matrix.os.guest, 'cross-platform-actions/') }}
+      if: ${{ false && startsWith(matrix.os.guest, 'cross-platform-actions/') }}
       id: bootstrap-build-cross-platform-actions
       uses: jenseng/dynamic-uses@v1
       with:
@@ -179,3 +202,4 @@ jobs:
         set -e
         echo "VERSION: version ${{ env.release_version }}"
         echo "FILE: ${{ env.release_asset }}"
+
