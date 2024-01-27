@@ -2,8 +2,6 @@ name: VM
 
 # TODO:
 #
-# XXX what happened to my cache paths, they ain't pathin
-#
 # 1. Set bootstrap prefix to match available binary package repos,
 #    or else the default for the platform
 #    - mostly /usr/pkg (and /usr/pkg/pkgdb)
@@ -13,8 +11,6 @@ name: VM
 # 2. Include compiler and prefix in the publishable filenames
 #    - And anything else my self-hosted VMs would cook into ${PACKAGES}
 #
-# 3. File an issue requesting NetBSD 10 aarch64
-# 
 # 4. Fix Alpine 32-bit x86
 #
 # 5. If branch == main, publish all the binary packages
@@ -224,7 +220,7 @@ jobs:
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-
 
     - name: Build (alpine prep)
-      if: ${{ false && startsWith(matrix.os.guest, 'jirutka/') }}
+      if: ${{ matrix.os.abi == '32' && startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine-prep
       uses: jirutka/setup-alpine@v1
       with:
@@ -232,7 +228,7 @@ jobs:
         arch: ${{ matrix.os.arch }}
         packages: ${{ matrix.os.prep }}
     - name: Build (alpine)
-      if: ${{ false && startsWith(matrix.os.guest, 'jirutka/') }}
+      if: ${{ matrix.os.abi == '32' && startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine
       shell: alpine.sh --root {0}
       run: |
@@ -254,7 +250,7 @@ jobs:
           }
 
     - name: Build (vmactions)
-      if: ${{ startsWith(matrix.os.guest, 'vmactions/') }}
+      if: ${{ false && startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-vmactions
       uses: jenseng/dynamic-uses@v1
       with:

@@ -104,7 +104,6 @@ main() {
 
 	pkgsrc_prefix=/opt/pkg	# XXX parameterize
 	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix})
-	warn "CACHE PREFIX = ${cache_prefix}"
 	var_tmp=$(compute_var_tmp)
 
 	unset PKG_PATH
