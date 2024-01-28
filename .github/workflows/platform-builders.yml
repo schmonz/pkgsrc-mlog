@@ -13,23 +13,21 @@ name: VM
 #
 # 3. Iterate over all available versions of guest platforms
 #
-# 4. Fix Alpine builds
-#
-# 5. If branch == main, publish all the binary packages
+# 4. If branch == main, publish all the binary packages
 #    - pkgsrc commit message with the changelog -> GitHub release notes
 #    - borrow from <https://github.com/FWDekker/mommy/blob/dev/.github/workflows/cd.yml>
 #
-# 6. if sshfs can be reliable and fast on all platforms, clone pkgsrc only 1x (on the host)
+# 5. if sshfs can be reliable and fast on all platforms, clone pkgsrc only 1x (on the host)
 #    - else try one more time to actions/cache pkgsrc on the host
 #
-# 7. Review the code, looking for anything I might ever need to update
+# 6. Review the code, looking for anything I might ever need to update
 #    - figure out how to be notified about updates
 #      - Any actions I use have newer versions available
 #      - Any actions I use give deprecation warnings (e.g., old NodeJS)
 #      - Any actions I use support newer versions of existing guest platforms
 #      - Any actions I use support additional guest platforms
 #      - GitHub itself offers newer Ubuntu, macOS, or additional platforms
-#        - don't use 'latest', pin the specific version currently known
+#
 # 7. Publish this as a GitHub Action!
 #
 # 8. Use it in all my package repos
@@ -155,8 +153,26 @@ jobs:
             lname: macos
             arch: amd64
             abi: default
-            version: 'latest'
-            host: macos-latest
+            version: '13'
+            host: macos-13
+            guest: 
+            prep: 
+
+          - uname: macOS
+            lname: macos
+            arch: amd64
+            abi: default
+            version: '12'
+            host: macos-12
+            guest: 
+            prep: 
+
+          - uname: macOS
+            lname: macos
+            arch: amd64
+            abi: default
+            version: '11'
+            host: macos-11
             guest: 
             prep: 
 
@@ -209,8 +225,17 @@ jobs:
             lname: ubuntu
             arch: amd64
             abi: default
-            version: 'latest'
-            host: ubuntu-latest
+            version: '22.04'
+            host: ubuntu-22.04
+            guest: 
+            prep: 
+
+          - uname: Ubuntu
+            lname: ubuntu
+            arch: amd64
+            abi: default
+            version: '20.04'
+            host: ubuntu-20.04
             guest: 
             prep: 
     steps:
@@ -243,7 +268,7 @@ jobs:
         set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/bootstrap-and-build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }}
 
     - name: Build (cross-platform-actions)
-      if: ${{ false && startsWith(matrix.os.guest, 'cross-platform-actions/') }}
+      if: ${{ startsWith(matrix.os.guest, 'cross-platform-actions/') }}
       id: bootstrap-build-cross-platform-actions
       uses: jenseng/dynamic-uses@v1
       with:
@@ -258,7 +283,7 @@ jobs:
           }
 
     - name: Build (vmactions)
-      if: ${{ false && startsWith(matrix.os.guest, 'vmactions/') }}
+      if: ${{ startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-vmactions
       uses: jenseng/dynamic-uses@v1
       with:
@@ -273,7 +298,7 @@ jobs:
           }
 
     - name: Build (native)
-      if: ${{ false && ! startsWith(matrix.os.guest, 'jirutka/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') && ! startsWith(matrix.os.guest, 'vmactions/') }}
+      if: ${{ ! startsWith(matrix.os.guest, 'jirutka/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') && ! startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-native
       run:
         set -e; ${{ matrix.os.prep }}
