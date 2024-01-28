@@ -48,10 +48,9 @@ restore_bootstrap_or_rebootstrap() {
 
 			./bootstrap ${bootstrap_args} \
 				|| cat ${var_tmp}/pkgsrc/bootstrap/wrk/pkgtools/cwrappers/work/libnbcompat/config.log
-
-			cat ${pkgsrc_prefix}/etc/mk.conf
 		)
 	fi
+	cat ${pkgsrc_prefix}/etc/mk.conf
 }
 
 build_this_package() {
