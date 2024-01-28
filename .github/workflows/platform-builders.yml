@@ -11,7 +11,9 @@ name: VM
 # 2. Include compiler and prefix in the publishable filenames
 #    - And anything else my self-hosted VMs would cook into ${PACKAGES}
 #
-# 4. Fix Alpine 32-bit x86
+# 3. Iterate over all available versions of guest platforms
+#
+# 4. Fix Alpine builds
 #
 # 5. If branch == main, publish all the binary packages
 #    - pkgsrc commit message with the changelog -> GitHub release notes
@@ -22,6 +24,12 @@ name: VM
 #
 # 7. Review the code, looking for anything I might ever need to update
 #    - figure out how to be notified about updates
+#      - Any actions I use have newer versions available
+#      - Any actions I use give deprecation warnings (e.g., old NodeJS)
+#      - Any actions I use support newer versions of existing guest platforms
+#      - Any actions I use support additional guest platforms
+#      - GitHub itself offers newer Ubuntu, macOS, or additional platforms
+#        - don't use 'latest', pin the specific version currently known
 # 7. Publish this as a GitHub Action!
 #
 # 8. Use it in all my package repos
@@ -47,7 +55,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: x86_64
-            abi: 64
+            abi: default
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -65,7 +73,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: armhf
-            abi: 64
+            abi: default
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -74,7 +82,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: armv7
-            abi: 64
+            abi: default
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -83,7 +91,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: aarch64
-            abi: 64
+            abi: default
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -92,7 +100,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: ppc64le
-            abi: 64
+            abi: default
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -101,7 +109,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: riscv64
-            abi: 64
+            abi: default
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -110,7 +118,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: s390x
-            abi: 64
+            abi: default
             version: 'edge'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -119,7 +127,7 @@ jobs:
           - uname: DragonFlyBSD
             lname: dragonflybsd
             arch: amd64
-            abi: 64
+            abi: default
             version: '6.4.0'
             host: ubuntu-latest
             guest: vmactions/dragonflybsd-vm@v1
@@ -128,7 +136,7 @@ jobs:
           - uname: FreeBSD
             lname: freebsd
             arch: amd64
-            abi: 64
+            abi: default
             version: '14.0'
             host: ubuntu-latest
             guest: vmactions/freebsd-vm@v1
@@ -137,7 +145,7 @@ jobs:
           - uname: FreeBSD
             lname: freebsd
             arch: arm64
-            abi: 64
+            abi: default
             version: '13.2'
             host: ubuntu-latest
             guest: cross-platform-actions/action@v0.22.0
@@ -146,7 +154,7 @@ jobs:
           - uname: macOS
             lname: macos
             arch: amd64
-            abi: 64
+            abi: default
             version: 'latest'
             host: macos-latest
             guest: 
@@ -155,7 +163,7 @@ jobs:
           - uname: NetBSD
             lname: netbsd
             arch: amd64
-            abi: 64
+            abi: default
             version: '9.3'
             host: ubuntu-latest
             guest: vmactions/netbsd-vm@v1
@@ -164,7 +172,7 @@ jobs:
           - uname: OmniOS
             lname: omnios
             arch: amd64
-            abi: 64
+            abi: default
             version: 'r151048'
             host: ubuntu-latest
             guest: vmactions/omnios-vm@v1
@@ -173,7 +181,7 @@ jobs:
           - uname: OpenBSD
             lname: openbsd
             arch: amd64
-            abi: 64
+            abi: default
             version: '7.4'
             host: ubuntu-latest
             guest: vmactions/openbsd-vm@v1
@@ -182,7 +190,7 @@ jobs:
           - uname: OpenBSD
             lname: openbsd
             arch: arm64
-            abi: 64
+            abi: default
             version: '7.4'
             host: ubuntu-latest
             guest: cross-platform-actions/action@v0.22.0
@@ -191,7 +199,7 @@ jobs:
           - uname: Solaris
             lname: solaris
             arch: amd64
-            abi: 64
+            abi: default
             version: '11.4-gcc' # XXX include compiler in all package filenames, but not specially here
             host: ubuntu-latest
             guest: vmactions/solaris-vm@v1
@@ -200,7 +208,7 @@ jobs:
           - uname: Ubuntu
             lname: ubuntu
             arch: amd64
-            abi: 64
+            abi: default
             version: 'latest'
             host: ubuntu-latest
             guest: 

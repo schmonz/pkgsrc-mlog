@@ -41,10 +41,13 @@ restore_bootstrap_or_rebootstrap() {
 	else
 		(
 			cd pkgsrc/bootstrap
-			./bootstrap \
-				--abi ${abi} \
-				--workdir ${var_tmp}/pkgsrc/bootstrap \
-				--prefix "${pkgsrc_prefix}" || cat ${var_tmp}/pkgsrc/bootstrap/wrk/pkgtools/cwrappers/work/libnbcompat/config.log
+
+			bootstrap_args="--workdir ${var_tmp}/pkgsrc/bootstrap"
+			bootstrap_args="${bootstrap_args} --prefix ${pkgsrc_prefix}"
+			[ "${abi}" != default ] && bootstrap_args="${bootstrap_args} --abi ${abi}"
+
+			./bootstrap ${bootstrap_args} \
+				|| cat ${var_tmp}/pkgsrc/bootstrap/wrk/pkgtools/cwrappers/work/libnbcompat/config.log
 		)
 	fi
 }
