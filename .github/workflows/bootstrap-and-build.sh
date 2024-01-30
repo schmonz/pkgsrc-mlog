@@ -91,7 +91,7 @@ prepare_release_artifacts() {
 		for i in *.tgz; do
 			localbase=$(pkg_info -Q LOCALBASE $i | sed -e 's|/|-|g')
 			cc_version=$(pkg_info -Q CC_VERSION $i)
-			mv $i ${lname}-${arch}-${abi}-${localbase}-${cc_version}-${version}-$i
+			mv $i ${lname}-${arch}-${abi}-${version}${localbase}-${cc_version}-$i
 		done
 	)
 
