@@ -23,7 +23,7 @@ compute_cache_prefix() {
 compute_pkgsrc_prefix() {
 	lname="$1"; shift
 	case "${lname}" in
-		darwin)	echo "/opt/pkg"		;;
+		macos)	echo "/opt/pkg"		;;
 		# XXX not all sunos, only illumos
 		sunos)	echo "/opt/local"	;;
 		*)	echo "/usr/pkg"		;;
