@@ -20,6 +20,16 @@ compute_cache_prefix() {
 	echo cached-${lname}-${arch}-${abi}-${version}$(echo ${pkgsrc_prefix} | sed -e 's|/|-|g')
 }
 
+compute_pkgsrc_prefix() {
+	lname="$1"; shift
+	case "${lname}" in
+		darwin)	echo "/opt/pkg"		;;
+		# XXX not all sunos, only illumos
+		sunos)	echo "/opt/local"	;;
+		*)	echo "/usr/pkg"		;;
+	esac
+}
+
 compute_var_tmp() {
 	if [ -e /private ]; then
 		# WRKOBJDIR must not contain any symlinks
@@ -79,7 +89,9 @@ prepare_release_artifacts() {
 	(
 		cd release-contents
 		for i in *.tgz; do
-			mv $i ${lname}-${arch}-${abi}-${version}-$i
+			localbase=$(pkg_info -Q LOCALBASE $i | sed -e 's|/|-|g')
+			cc_version=$(pkg_info -Q CC_VERSION $i)
+			mv $i ${lname}-${arch}-${abi}-${localbase}-${cc_version}-${version}-$i
 		done
 	)
 
@@ -106,7 +118,7 @@ main() {
 	abi="$1"; shift
 	version="$1"; shift
 
-	pkgsrc_prefix=/opt/pkg	# XXX parameterize
+	pkgsrc_prefix=$(compute_pkgsrc_prefix ${lname})
 	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix})
 	var_tmp=$(compute_var_tmp)
 
