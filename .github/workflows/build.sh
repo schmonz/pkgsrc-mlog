@@ -24,8 +24,7 @@ compute_pkgsrc_prefix() {
 	lname="$1"; shift
 	case "${lname}" in
 		macos)	echo "/opt/pkg"		;;
-		# XXX not all sunos, only illumos
-		sunos)	echo "/opt/local"	;;
+		omnios)	echo "/opt/local"	;;
 		*)	echo "/usr/pkg"		;;
 	esac
 }
@@ -77,6 +76,9 @@ prepare_release_artifacts() {
 	abi="$1"; shift
 	version="$1"; shift
 
+	abi_description="-${abi}"
+	[ "${abi}" = default ] && abi_description=''
+
 	mkdir release-contents
 	(
 		cd pkgsrc/${GITHUB_REPOSITORY}
@@ -91,7 +93,7 @@ prepare_release_artifacts() {
 		for i in *.tgz; do
 			localbase=$(pkg_info -Q LOCALBASE $i | sed -e 's|/|-|g')
 			cc_version=$(pkg_info -Q CC_VERSION $i)
-			mv $i ${lname}-${arch}-${abi}-${version}${localbase}-${cc_version}-$i
+			mv $i ${lname}-${arch}${abi_description}-${version}${localbase}-${cc_version}-$i
 		done
 	)
 
