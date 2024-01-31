@@ -144,6 +144,15 @@ jobs:
 
           - uname: macOS
             lname: macos
+            arch: arm64
+            abi: default
+            version: '14'
+            host: macos-14
+            guest: 
+            prep: 
+
+          - uname: macOS
+            lname: macos
             arch: amd64
             abi: default
             version: '13'
