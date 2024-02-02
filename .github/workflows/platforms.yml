@@ -138,7 +138,7 @@ jobs:
             arch: arm64
             abi: default
             version: '13.2'
-            host: macos-14
+            host: ubuntu-latest
             guest: cross-platform-actions/action@v0.22.0
             prep: sudo pkg install -y git
 
@@ -210,7 +210,7 @@ jobs:
             arch: arm64
             abi: default
             version: '7.4'
-            host: macos-14
+            host: ubuntu-latest
             guest: cross-platform-actions/action@v0.22.0
             prep: sudo pkg_add git
 
@@ -280,7 +280,6 @@ jobs:
             "operating_system": "${{ matrix.os.lname }}",
             "architecture": "${{ matrix.os.arch }}",
             "version": "${{ matrix.os.version }}",
-            "hypervisor": "qemu",
             "shell": "sh",
             "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }}"
           }
