@@ -2,18 +2,17 @@ name: VM
 
 # TODO:
 #
-# 3. Iterate over all available versions of guest platforms
-#    - possible to use matrix more effectively?
-#      - e.g. one Alpine with arch: [foo, bar, baz]
+# 1. Publish the binary packages (if on main branch)
+#    - https://github.com/FWDekker/mommy/blob/dev/.github/workflows/cd.yml
 #
-# 4. If branch == main, publish all the binary packages
-#    - pkgsrc commit message with the changelog -> GitHub release notes
-#    - borrow from <https://github.com/FWDekker/mommy/blob/dev/.github/workflows/cd.yml>
+# 2. Extract this to a GitHub Action
+#    - https://docs.github.com/en/actions/creating-actions/about-custom-actions
+#    - https://damienaicheh.github.io/github/actions/2021/10/07/reuse-workflows-composite-action-en.html
+#    - https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action
 #
-# 5. if sshfs can be reliable and fast on all platforms, clone pkgsrc only 1x (on the host)
-#    - else try one more time to actions/cache pkgsrc on the host
+# 3. Use it from a second pkgsrc-foo repo
 #
-# 6. Review the code, looking for anything I might ever need to update
+# 4. Review the Action code, looking for anything I might ever need to update
 #    - figure out how to be notified about updates
 #      - Any actions I use have newer versions available
 #      - Any actions I use give deprecation warnings (e.g., old NodeJS)
@@ -21,11 +20,12 @@ name: VM
 #      - Any actions I use support additional guest platforms
 #      - GitHub itself offers newer Ubuntu, macOS, or additional platforms
 #
-# 7. Publish this as a GitHub Action!
+# 5. Turn my pkgsrc commit message into GitHub release notes
 #
-# 8. Use it in all my package repos
+# 6. Add the Action to all my package repos
+#    - and set it up for new repos in `pkgsrc-import-git`
 #
-# 9. Tell other pkgsrc developers about it
+# 7. Share with other pkgsrc developers
 
 on:
   push:
