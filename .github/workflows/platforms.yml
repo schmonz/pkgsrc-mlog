@@ -362,7 +362,7 @@ jobs:
           merge-multiple: true
 
       - name: Debug which packages were downloaded
-        run: ls -R
+        run: ls -R release-contents
 
       - name: Publish packages
         uses: softprops/action-gh-release@v1
