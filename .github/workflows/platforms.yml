@@ -314,9 +314,26 @@ jobs:
         path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-opt-pkg
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
-    - name: Pretend to publish package
-      run: |
-        set -e
-        echo "VERSION: version ${{ env.release_version }}"
-        echo "FILE: ${{ env.release_asset }}"
+    - name: Upload built package
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ env.release_asset }}
+        compression-level: '0'
+        overwrite: 'false'
+        if-no-files-found: 'error'
 
+  release-all-packages:
+    needs: [ build-all-packages ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download built packages
+        uses: actions/download-artifact@v4
+      - name: Publish packages
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.release_version }}
+          draft: false
+          prerelease: false
+          files: *.tgz
+          fail_on_unmatched_files: true
