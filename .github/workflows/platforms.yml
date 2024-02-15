@@ -335,5 +335,5 @@ jobs:
           tag_name: ${{ env.release_version }}
           draft: false
           prerelease: false
-          files: *.tgz
+          files: '*.tgz'
           fail_on_unmatched_files: true
