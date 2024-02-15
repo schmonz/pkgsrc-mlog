@@ -367,7 +367,7 @@ jobs:
       - name: Publish packages
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ env.release_version }}
+          tag_name: ${{ env.release_version }}
           draft: false
           prerelease: false
           files: 'release-contents/*.tgz'
