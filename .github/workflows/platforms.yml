@@ -343,11 +343,10 @@ jobs:
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Create tag
-      uses: actions/github-script@v5
+      uses: actions/github-script@v7
       with:
         script: |
           // XXX does the tag already exist?
-          // XXX @v7
           github.rest.git.createRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
@@ -381,8 +380,8 @@ jobs:
       - name: Publish packages
         uses: softprops/action-gh-release@v1
         with:
-          #tag_name: ${{ env.release_version }}
-          #target_commitish: main
+          tag_name: ${{ env.release_version }}
+          target_commitish: main
           draft: false
           prerelease: false
           files: 'release-contents/*.tgz'
