@@ -342,6 +342,19 @@ jobs:
         path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
+    - name: Create tag
+      uses: actions/github-script@v5
+      with:
+        script: |
+          // XXX does the tag already exist?
+          // XXX @v7
+          github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: 'refs/tags/${{ env.release_version }}',
+            sha: context.sha
+          })
+            
     - name: Upload built packages
       uses: actions/upload-artifact@v4
       with:
