@@ -346,25 +346,29 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}
-        path: release-contents/*.tgz
+        path: ${{ env.release_asset }}
         compression-level: '0'
         overwrite: 'false'
         if-no-files-found: 'error'
 
-    - name: Download built packages
-      uses: actions/download-artifact@v4
-      with:
-        path: release-contents
-        merge-multiple: true
+  publish-all-packages:
+    needs: [ build-all-packages ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download built packages
+        uses: actions/download-artifact@v4
+        with:
+          path: release-contents
+          merge-multiple: true
 
-    - name: Debug which packages were downloaded
-      run: ls -R
+      - name: Debug which packages were downloaded
+        run: ls -R
 
-    - name: Publish packages
-      uses: softprops/action-gh-release@v1
-      with:
-        name: ${{ env.release_version }}
-        draft: false
-        prerelease: false
-        files: 'release-contents/*.tgz'
-        fail_on_unmatched_files: true
+      - name: Publish packages
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.release_version }}
+          draft: false
+          prerelease: false
+          files: 'release-contents/*.tgz'
+          fail_on_unmatched_files: true
