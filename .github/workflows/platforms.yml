@@ -48,7 +48,8 @@ jobs:
             lname: alpine
             arch: x86_64
             abi: default
-            version: 'edge'
+            version: 'v3.15'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
             prep: gcc g++ procps coreutils gawk bash linux-headers git
@@ -57,7 +58,8 @@ jobs:
             lname: alpine
             arch: x86
             abi: 32
-            version: 'edge'
+            version: 'v3.15'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
             prep: gcc g++ procps coreutils gawk bash linux-headers git
@@ -66,7 +68,8 @@ jobs:
             lname: alpine
             arch: armhf
             abi: default
-            version: 'edge'
+            version: 'v3.15'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
             prep: gcc g++ procps coreutils gawk bash linux-headers git
@@ -75,7 +78,8 @@ jobs:
             lname: alpine
             arch: armv7
             abi: default
-            version: 'edge'
+            version: 'v3.15'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
             prep: gcc g++ procps coreutils gawk bash linux-headers git
@@ -84,7 +88,8 @@ jobs:
             lname: alpine
             arch: aarch64
             abi: default
-            version: 'edge'
+            version: 'v3.15'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
             prep: gcc g++ procps coreutils gawk bash linux-headers git
@@ -93,7 +98,8 @@ jobs:
             lname: alpine
             arch: ppc64le
             abi: default
-            version: 'edge'
+            version: 'v3.15'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
             prep: gcc g++ procps coreutils gawk bash linux-headers git
@@ -103,6 +109,7 @@ jobs:
             arch: riscv64
             abi: default
             version: 'edge'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
             prep: gcc g++ procps coreutils gawk bash linux-headers git
@@ -111,7 +118,8 @@ jobs:
             lname: alpine
             arch: s390x
             abi: default
-            version: 'edge'
+            version: 'v3.15'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
             prep: gcc g++ procps coreutils gawk bash linux-headers git
@@ -121,6 +129,7 @@ jobs:
             arch: amd64
             abi: default
             version: '6.4.0'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/dragonflybsd-vm@v1
             prep: pkg upgrade -y; pkg install -y git
@@ -130,6 +139,7 @@ jobs:
             arch: amd64
             abi: default
             version: '14.0'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/freebsd-vm@v1
             prep: pkg install -y git
@@ -139,6 +149,7 @@ jobs:
             arch: arm64
             abi: default
             version: '13.2'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: cross-platform-actions/action@v0.22.0
             prep: sudo pkg install -y git
@@ -148,6 +159,7 @@ jobs:
             arch: arm64
             abi: default
             version: '14'
+            prefix: '/opt/pkg'
             host: macos-14
             guest: 
             prep: 
@@ -157,6 +169,7 @@ jobs:
             arch: amd64
             abi: default
             version: '13'
+            prefix: '/opt/pkg'
             host: macos-13
             guest: 
             prep: 
@@ -166,6 +179,7 @@ jobs:
             arch: amd64
             abi: default
             version: '12'
+            prefix: '/opt/pkg'
             host: macos-12
             guest: 
             prep: 
@@ -175,6 +189,7 @@ jobs:
             arch: amd64
             abi: default
             version: '11'
+            prefix: '/opt/pkg'
             host: macos-11
             guest: 
             prep: 
@@ -184,6 +199,7 @@ jobs:
             arch: amd64
             abi: default
             version: '9.3'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/netbsd-vm@v1
             prep: /usr/sbin/pkg_add git-base
@@ -193,6 +209,7 @@ jobs:
             arch: amd64
             abi: default
             version: 'r151048'
+            prefix: '/opt/local'
             host: ubuntu-latest
             guest: vmactions/omnios-vm@v1
             prep: pkg install developer/versioning/git developer/gcc10 system/header developer/build/make
@@ -202,6 +219,7 @@ jobs:
             arch: amd64
             abi: default
             version: '7.4'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/openbsd-vm@v1
             prep: pkg_add git
@@ -211,6 +229,7 @@ jobs:
             arch: arm64
             abi: default
             version: '7.4'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: cross-platform-actions/action@v0.22.0
             prep: sudo pkg_add git
@@ -220,6 +239,7 @@ jobs:
             arch: amd64
             abi: default
             version: '11.4-gcc' # XXX include compiler in all package filenames, but not specially here
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/solaris-vm@v1
             prep: pkgutil -y -i git
@@ -229,6 +249,7 @@ jobs:
             arch: amd64
             abi: default
             version: '22.04'
+            prefix: '/usr/pkg'
             host: ubuntu-22.04
             guest: 
             prep: 
@@ -238,6 +259,7 @@ jobs:
             arch: amd64
             abi: default
             version: '20.04'
+            prefix: '/usr/pkg'
             host: ubuntu-20.04
             guest: 
             prep: 
@@ -247,12 +269,16 @@ jobs:
       with:
         path: move-under-pkgsrc-once-you-have-pkgsrc
 
+    - name: Map pkgsrc prefix to cache prefix
+      run: |
+        CACHE_PREFIX=$(echo ${{ matrix.os.prefix }} | sed -e 's|/|-|g')
+        echo "CACHE_PREFIX=${CACHE_PREFIX}" >> "$GITHUB_ENV"
+
     - name: Restore bootstrap
       id: bootstrap-restore
       uses: actions/cache/restore@v4
       with:
-        # XXX -opt-pkg needs to be dynamically generated
-        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-opt-pkg
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
         key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-
 
@@ -269,7 +295,7 @@ jobs:
       id: bootstrap-build-alpine
       shell: alpine.sh --root {0}
       run: |
-        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }}
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}
 
     - name: Build (cross-platform-actions)
       if: ${{ startsWith(matrix.os.guest, 'cross-platform-actions/') }}
@@ -283,7 +309,7 @@ jobs:
             "architecture": "${{ matrix.os.arch }}",
             "version": "${{ matrix.os.version }}",
             "shell": "sh",
-            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }}"
+            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}"
           }
 
     - name: Build (vmactions)
@@ -298,7 +324,7 @@ jobs:
             "usesh": true,
             "sync": "rsync",
             "prepare": "set -e; ${{ matrix.os.prep }}",
-            "run": "set -e; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }}"
+            "run": "set -e; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}"
           }
 
     - name: Build (native)
@@ -306,15 +332,14 @@ jobs:
       id: bootstrap-build-native
       run:
         set -e; ${{ matrix.os.prep }}
-        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }}
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}
 
     - name: Save bootstrap
       id: bootstrap-save
       uses: actions/cache/save@v4
       if: always()
       with:
-        # XXX -opt-pkg needs to be dynamically generated
-        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-opt-pkg
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Upload built packages
@@ -329,6 +354,7 @@ jobs:
     - name: Download built packages
       uses: actions/download-artifact@v4
       with:
+        path: release-contents
         merge-multiple: true
 
     - name: Debug which packages were downloaded
@@ -337,7 +363,7 @@ jobs:
     - name: Publish packages
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ env.release_version }}
+        name: ${{ env.release_version }}
         draft: false
         prerelease: false
         files: 'release-contents/*.tgz'

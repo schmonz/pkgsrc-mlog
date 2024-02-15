@@ -20,15 +20,6 @@ compute_cache_prefix() {
 	echo cached-${lname}-${arch}-${abi}-${version}$(echo ${pkgsrc_prefix} | sed -e 's|/|-|g')
 }
 
-compute_pkgsrc_prefix() {
-	lname="$1"; shift
-	case "${lname}" in
-		macos)	echo "/opt/pkg"		;;
-		omnios)	echo "/opt/local"	;;
-		*)	echo "/usr/pkg"		;;
-	esac
-}
-
 compute_var_tmp() {
 	if [ -e /private ]; then
 		# WRKOBJDIR must not contain any symlinks
@@ -112,16 +103,16 @@ avoid_unneeded_big_slow_rsync() {
 }
 
 main() {
-	[ $# = 4 ] || die "usage: $0 lname arch abi version"
+	[ $# = 5 ] || die "usage: $0 lname arch abi version prefix"
 	[ "$(id -u)" -eq 0 ] || die "script assumes it'll be run as root"
 
 	lname="$1"; shift
 	arch="$1"; shift
 	abi="$1"; shift
 	version="$1"; shift
+	pkgsrc_prefix="$1"; shift
 
-	pkgsrc_prefix=$(compute_pkgsrc_prefix ${lname})
-	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix})
+	cache_prefix=$(compute_cache_prefix${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix})
 	var_tmp=$(compute_var_tmp)
 
 	unset PKG_PATH
