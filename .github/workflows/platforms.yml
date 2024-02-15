@@ -295,7 +295,7 @@ jobs:
       id: bootstrap-build-alpine
       shell: alpine.sh --root {0}
       run: |
-        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}
 
     - name: Build (cross-platform-actions)
       if: ${{ startsWith(matrix.os.guest, 'cross-platform-actions/') }}
@@ -309,7 +309,7 @@ jobs:
             "architecture": "${{ matrix.os.arch }}",
             "version": "${{ matrix.os.version }}",
             "shell": "sh",
-            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}"
+            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}"
           }
 
     - name: Build (vmactions)
@@ -324,7 +324,7 @@ jobs:
             "usesh": true,
             "sync": "rsync",
             "prepare": "set -e; ${{ matrix.os.prep }}",
-            "run": "set -e; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}"
+            "run": "set -e; mkdir -p $(dirname ${GITHUB_ENV}); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}"
           }
 
     - name: Build (native)
@@ -332,15 +332,7 @@ jobs:
       id: bootstrap-build-native
       run:
         set -e; ${{ matrix.os.prep }}
-        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}
-
-    - name: Validate bootstrap
-      id: bootstrap-build-validate
-      run:
-        set -e
-        BOOTSTRAP_COMPLETED=no
-        [ -f "${{ matrix.os.prefix }}/etc/mk.conf" ] && BOOTSTRAP_COMPLETED=yes
-        echo "BOOTSTRAP_COMPLETED=${BOOTSTRAP_COMPLETED}" >> "${GITHUB_ENV}"
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}
 
     - name: Save bootstrap
       id: bootstrap-save
