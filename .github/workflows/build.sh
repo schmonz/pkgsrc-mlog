@@ -112,7 +112,7 @@ main() {
 	version="$1"; shift
 	pkgsrc_prefix="$1"; shift
 
-	cache_prefix=$(compute_cache_prefix${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix})
+	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix})
 	var_tmp=$(compute_var_tmp)
 
 	unset PKG_PATH
