@@ -122,7 +122,7 @@ jobs:
             version: '6.4.0'
             host: ubuntu-latest
             guest: vmactions/dragonflybsd-vm@v1
-            prep: pkg upgrade -y; pkg install -y git
+            prep: pkg install -y git
 
           - uname: FreeBSD
             lname: freebsd
