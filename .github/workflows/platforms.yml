@@ -4,6 +4,7 @@ name: VM
 #
 # 1. Publish the binary packages (if on main branch)
 #    - https://github.com/FWDekker/mommy/blob/dev/.github/workflows/cd.yml
+#    - also see the various Linux containers (Arch, Fedora...)
 #
 # 2. Extract this to a GitHub Action
 #    - https://docs.github.com/en/actions/creating-actions/about-custom-actions
@@ -250,6 +251,7 @@ jobs:
       id: bootstrap-restore
       uses: actions/cache/restore@v4
       with:
+        # XXX -opt-pkg needs to be dynamically generated
         path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-opt-pkg
         key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-
@@ -311,30 +313,32 @@ jobs:
       uses: actions/cache/save@v4
       if: always()
       with:
+        # XXX -opt-pkg needs to be dynamically generated
         path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-opt-pkg
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Upload built packages
       uses: actions/upload-artifact@v4
       with:
-        #path: ${{ env.release_asset }}
+        name: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}
         path: release-contents/*.tgz
         compression-level: '0'
-        overwrite: 'true'
-        if-no-files-found: 'warn'
+        overwrite: 'false'
+        if-no-files-found: 'error'
 
-  release-all-packages:
-    needs: [ build-all-packages ]
-    runs-on: ubuntu-latest
+    - name: Download built packages
+      uses: actions/download-artifact@v4
+      with:
+        merge-multiple: true
 
-    steps:
-      - name: Download built packages
-        uses: actions/download-artifact@v4
-      - name: Publish packages
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ env.release_version }}
-          draft: false
-          prerelease: false
-          files: '*.tgz'
-          fail_on_unmatched_files: true
+    - name: Debug which packages were downloaded
+      run: ls -R
+
+    - name: Publish packages
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ env.release_version }}
+        draft: false
+        prerelease: false
+        files: 'release-contents/*.tgz'
+        fail_on_unmatched_files: true
