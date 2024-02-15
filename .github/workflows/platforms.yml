@@ -339,7 +339,7 @@ jobs:
       run:
         set -e
         BOOTSTRAP_COMPLETED=no
-        [ -f "${{ env.CACHE_PREFIX }}/etc/mk.conf" ] && BOOTSTRAP_COMPLETED=yes
+        [ -f "${{ matrix.os.prefix }}/etc/mk.conf" ] && BOOTSTRAP_COMPLETED=yes
         echo "BOOTSTRAP_COMPLETED=${BOOTSTRAP_COMPLETED}" >> "${GITHUB_ENV}"
 
     - name: Save bootstrap
@@ -376,7 +376,8 @@ jobs:
       - name: Publish packages
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.release_version }}
+          #tag_name: ${{ env.release_version }}
+          #target_commitish: main
           draft: false
           prerelease: false
           files: 'release-contents/*.tgz'
