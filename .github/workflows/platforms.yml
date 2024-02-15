@@ -269,7 +269,7 @@ jobs:
       with:
         path: move-under-pkgsrc-once-you-have-pkgsrc
 
-    - name: Map pkgsrc prefix to cache prefix
+    - name: Map pkgsrc prefix to cache location
       run: |
         CACHE_PREFIX=$(echo ${{ matrix.os.prefix }} | sed -e 's|/|-|g')
         echo "CACHE_PREFIX=${CACHE_PREFIX}" >> "$GITHUB_ENV"
@@ -334,10 +334,18 @@ jobs:
         set -e; ${{ matrix.os.prep }}
         set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}
 
+    - name: Validate bootstrap
+      id: bootstrap-build-validate
+      run:
+        set -e
+        BOOTSTRAP_COMPLETED=no
+        [ -f "${{ env.CACHE_PREFIX }}/etc/mk.conf" ] && BOOTSTRAP_COMPLETED=yes
+        echo "BOOTSTRAP_COMPLETED=${BOOTSTRAP_COMPLETED}" >> "${GITHUB_ENV}"
+
     - name: Save bootstrap
       id: bootstrap-save
       uses: actions/cache/save@v4
-      if: always()
+      if: ${{ startsWith(env.BOOTSTRAP_COMPLETED, 'yes') }}
       with:
         path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
@@ -352,6 +360,7 @@ jobs:
         if-no-files-found: 'error'
 
   publish-all-packages:
+    if: always()
     needs: [ build-all-packages ]
     runs-on: ubuntu-latest
     steps:
