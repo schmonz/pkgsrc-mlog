@@ -148,10 +148,10 @@ jobs:
             lname: freebsd
             arch: arm64
             abi: default
-            version: '13.2'
+            version: '14.0'
             prefix: '/usr/pkg'
             host: ubuntu-latest
-            guest: cross-platform-actions/action@v0.22.0
+            guest: cross-platform-actions/action@v0.23.0
             prep: sudo pkg install -y git
 
           - uname: macOS
@@ -231,7 +231,7 @@ jobs:
             version: '7.4'
             prefix: '/usr/pkg'
             host: ubuntu-latest
-            guest: cross-platform-actions/action@v0.22.0
+            guest: cross-platform-actions/action@v0.23.0
             prep: sudo pkg_add git
 
           - uname: Solaris
