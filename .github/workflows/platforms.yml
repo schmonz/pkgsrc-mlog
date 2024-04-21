@@ -134,16 +134,6 @@ jobs:
             guest: vmactions/dragonflybsd-vm@v1
             prep: pkg upgrade -y; pkg install -y git
 
-          - uname: Fedora
-            lname: fedora
-            arch: x86_64
-            abi: default
-            version: 'rawhide'
-            prefix: '/usr/pkg'
-            host: ubuntu-latest
-            guest: container
-            prep: sudo dnf -y install gcc gcc-c++ make redhat-lsb-core
-
           - uname: FreeBSD
             lname: freebsd
             arch: amd64
@@ -316,13 +306,6 @@ jobs:
       shell: alpine.sh --root {0}
       run: |
         set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}
-
-    - name: Build (container)
-      if: ${{ startsWith(matrix.os.guest, 'container') }}
-      id: bootstrap-build-container
-      container: ${{ matrix.os.lname }}:${{ matrix.os.version }}
-      run: |
-        set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}
 
     - name: Build (cross-platform-actions)
       if: ${{ startsWith(matrix.os.guest, 'cross-platform-actions/') }}
