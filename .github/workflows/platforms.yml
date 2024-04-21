@@ -212,7 +212,7 @@ jobs:
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: cross-platform-actions/action@v0.24.0
-            prep: sudo /usr/sbin/pkg_add git-base
+            prep: sudo pkgin -y install git-base
 
           - uname: OmniOS
             lname: omnios
