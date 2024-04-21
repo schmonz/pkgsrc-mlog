@@ -151,7 +151,7 @@ jobs:
             version: '14.0'
             prefix: '/usr/pkg'
             host: ubuntu-latest
-            guest: cross-platform-actions/action@v0.23.0
+            guest: cross-platform-actions/action@v0.24.0
             prep: sudo pkg install -y git
 
           - uname: macOS
@@ -198,11 +198,21 @@ jobs:
             lname: netbsd
             arch: amd64
             abi: default
-            version: '9.3'
+            version: '10.0'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/netbsd-vm@v1
             prep: /usr/sbin/pkg_add git-base
+
+          - uname: NetBSD
+            lname: netbsd
+            arch: arm64
+            abi: default
+            version: '10.0'
+            prefix: '/usr/pkg'
+            host: ubuntu-latest
+            guest: cross-platform-actions/action@v0.24.0
+            prep: sudo pkg_add git-base
 
           - uname: OmniOS
             lname: omnios
@@ -218,7 +228,7 @@ jobs:
             lname: openbsd
             arch: amd64
             abi: default
-            version: '7.4'
+            version: '7.5'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/openbsd-vm@v1
@@ -228,10 +238,10 @@ jobs:
             lname: openbsd
             arch: arm64
             abi: default
-            version: '7.4'
+            version: '7.5'
             prefix: '/usr/pkg'
             host: ubuntu-latest
-            guest: cross-platform-actions/action@v0.23.0
+            guest: cross-platform-actions/action@v0.24.0
             prep: sudo pkg_add git
 
           - uname: Solaris
