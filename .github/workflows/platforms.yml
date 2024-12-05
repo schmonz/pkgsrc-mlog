@@ -151,7 +151,7 @@ jobs:
             version: '14.2'
             prefix: '/usr/pkg'
             host: ubuntu-latest
-            guest: cross-platform-actions/action@v0.24.0
+            guest: cross-platform-actions/action@v0.26.0
             prep: sudo pkg install -y git
 
           - uname: macOS
@@ -211,7 +211,7 @@ jobs:
             version: '10.0'
             prefix: '/usr/pkg'
             host: ubuntu-latest
-            guest: cross-platform-actions/action@v0.24.0
+            guest: cross-platform-actions/action@v0.26.0
             prep: sudo pkgin -y install git-base
 
           - uname: OmniOS
@@ -241,7 +241,7 @@ jobs:
             version: '7.6'
             prefix: '/usr/pkg'
             host: ubuntu-latest
-            guest: cross-platform-actions/action@v0.24.0
+            guest: cross-platform-actions/action@v0.26.0
             prep: sudo pkg_add git
 
           - uname: Solaris
