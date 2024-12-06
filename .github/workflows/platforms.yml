@@ -138,7 +138,7 @@ jobs:
             lname: freebsd
             arch: amd64
             abi: default
-            version: '14.2'
+            version: '14.1'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/freebsd-vm@v1
@@ -158,9 +158,19 @@ jobs:
             lname: macos
             arch: arm64
             abi: default
+            version: '15'
+            prefix: '/opt/pkg'
+            host: macOS-15
+            guest: 
+            prep: 
+
+          - uname: macOS
+            lname: macos
+            arch: arm64
+            abi: default
             version: '14'
             prefix: '/opt/pkg'
-            host: macos-14
+            host: macOS-14
             guest: 
             prep: 
 
@@ -170,27 +180,7 @@ jobs:
             abi: default
             version: '13'
             prefix: '/opt/pkg'
-            host: macos-13
-            guest: 
-            prep: 
-
-          - uname: macOS
-            lname: macos
-            arch: amd64
-            abi: default
-            version: '12'
-            prefix: '/opt/pkg'
-            host: macos-12
-            guest: 
-            prep: 
-
-          - uname: macOS
-            lname: macos
-            arch: amd64
-            abi: default
-            version: '11'
-            prefix: '/opt/pkg'
-            host: macos-11
+            host: macOS-13
             guest: 
             prep: 
 
