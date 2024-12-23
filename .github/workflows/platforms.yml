@@ -138,7 +138,7 @@ jobs:
             lname: freebsd
             arch: amd64
             abi: default
-            version: '14.1'
+            version: '14.2'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/freebsd-vm@v1
