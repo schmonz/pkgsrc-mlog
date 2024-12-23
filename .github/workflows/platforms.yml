@@ -282,6 +282,10 @@ jobs:
         key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-
 
+    - name: Install missing Ubuntu host tools
+      run: |
+        apt-get -y install binfmt-support
+
     - name: Build (alpine prep)
       if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine-prep
