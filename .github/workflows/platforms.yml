@@ -284,7 +284,7 @@ jobs:
 
     - name: Install missing Ubuntu host tools
       run: |
-        apt-get -y install binfmt-support
+        sudo apt-get -y install binfmt-support
 
     - name: Build (alpine prep)
       if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
