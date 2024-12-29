@@ -188,7 +188,7 @@ jobs:
             lname: netbsd
             arch: amd64
             abi: default
-            version: '10.0'
+            version: '10.1'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/netbsd-vm@v1
