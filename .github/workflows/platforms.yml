@@ -284,7 +284,7 @@ jobs:
 
     - name: Install missing Ubuntu host tools
       run: |
-        if [ -f /etc/debian_version ]; then sudo apt-get -y install binfmt-support; else echo not Ubuntu; done
+        if [ -f /etc/debian_version ]; then sudo apt-get -y install binfmt-support; else echo not Ubuntu; fi
 
     - name: Build (alpine prep)
       if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
