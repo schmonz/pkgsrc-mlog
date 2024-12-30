@@ -199,7 +199,7 @@ jobs:
             arch: arm64
             abi: default
             version: '10.0'
-            prefix: '/usr/pkg'
+            prefix: '/opt/pkg' # cross-platform-actions prepopulates /usr/pkg
             host: ubuntu-latest
             guest: cross-platform-actions/action@v0.26.0
             prep: sudo pkgin -y install git-base
@@ -287,7 +287,7 @@ jobs:
         if [ -f /etc/debian_version ]; then sudo apt-get -y install binfmt-support; else echo not Ubuntu; fi
 
     - name: Build (alpine prep)
-      if: ${{ false && startsWith(matrix.os.guest, 'jirutka/') }}
+      if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine-prep
       uses: jirutka/setup-alpine@v1
       with:
@@ -313,11 +313,11 @@ jobs:
             "architecture": "${{ matrix.os.arch }}",
             "version": "${{ matrix.os.version }}",
             "shell": "sh",
-            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; echo; echo SCHMOOOOONZ 1; echo; /usr/pkg/sbin/pkg_info; echo; echo SCHMOOOOONZ 2; echo; sudo rm -rf /usr/pkg; echo SCHMOOOOONZ 3; echo; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}"
+            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}"
           }
 
     - name: Build (vmactions)
-      if: ${{ false && startsWith(matrix.os.guest, 'vmactions/') }}
+      if: ${{ startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-vmactions
       uses: jenseng/dynamic-uses@v1
       with:
@@ -332,7 +332,7 @@ jobs:
           }
 
     - name: Build (native)
-      if: ${{ false && ! startsWith(matrix.os.guest, 'jirutka/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') && ! startsWith(matrix.os.guest, 'vmactions/') }}
+      if: ${{ ! startsWith(matrix.os.guest, 'jirutka/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') && ! startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-native
       run:
         set -e; ${{ matrix.os.prep }}
