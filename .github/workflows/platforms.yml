@@ -282,11 +282,6 @@ jobs:
         key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
         restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-
 
-    - name: Install missing Ubuntu host tools
-      if: false
-      run: |
-        if [ -f /etc/debian_version ]; then sudo apt-get -y install binfmt-support; else echo not Ubuntu; fi
-
     - name: Build (alpine prep)
       if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine-prep
@@ -348,7 +343,6 @@ jobs:
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Create tag
-      if: false
       uses: actions/github-script@v7
       with:
         script: |
