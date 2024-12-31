@@ -325,7 +325,7 @@ jobs:
       id: upload-built-packages
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}
+        name: ${{ matrix.os.uname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}
         path: ${{ env.release_asset }}
         compression-level: '0'
         overwrite: 'false'
