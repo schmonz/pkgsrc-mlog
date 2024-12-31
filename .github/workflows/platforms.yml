@@ -100,7 +100,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: riscv64
-            version: 'edge'
+            version: '3.21'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
