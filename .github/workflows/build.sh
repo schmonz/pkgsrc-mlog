@@ -40,7 +40,9 @@ restore_bootstrap_or_rebootstrap() {
 		mv "${cache_prefix}" "${pkgsrc_prefix}"
 	else
 		(
+			echo "SCHMONZ: restore_bootstrap_or_rebootstrap 1: $(pwd)"
 			cd pkgsrc/bootstrap
+			echo "SCHMONZ: restore_bootstrap_or_rebootstrap 2: $(pwd)"
 
 			bootstrap_args="--workdir ${var_tmp}/pkgsrc/bootstrap"
 			bootstrap_args="${bootstrap_args} --prefix ${pkgsrc_prefix}"
@@ -56,7 +58,9 @@ restore_bootstrap_or_rebootstrap() {
 build_this_package() {
 	var_tmp="$1"; shift
 	(
+		echo "SCHMONZ: build_this_package 1: $(pwd)"
 		cd pkgsrc/${GITHUB_REPOSITORY}
+		echo "SCHMONZ: build_this_package 2: $(pwd)"
 		bmake WRKOBJDIR=${var_tmp}/pkgsrc/obj package
 	)
 }
@@ -72,7 +76,9 @@ prepare_release_artifacts() {
 
 	mkdir release-contents
 	(
+		echo "SCHMONZ: prepare_release_artifacts 1: $(pwd)"
 		cd pkgsrc/${GITHUB_REPOSITORY}
+		echo "SCHMONZ: prepare_release_artifacts 2: $(pwd)"
 
 		echo "release_version=$(bmake show-var VARNAME=PKGVERSION)" \
 			>> "${GITHUB_ENV}"
@@ -80,7 +86,9 @@ prepare_release_artifacts() {
 		mv $(bmake show-var VARNAME=PKGFILE) ../../../release-contents
 	)
 	(
+		echo "SCHMONZ: prepare_release_artifacts 3: $(pwd)"
 		cd release-contents
+		echo "SCHMONZ: prepare_release_artifacts 4: $(pwd)"
 		for i in *.tgz; do
 			localbase=$(pkg_info -Q LOCALBASE $i | sed -e 's|/|-|g')
 			cc_version=$(pkg_info -Q CC_VERSION $i)
