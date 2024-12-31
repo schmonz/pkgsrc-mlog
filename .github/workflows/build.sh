@@ -97,7 +97,7 @@ prepare_release_artifacts() {
 		done
 	)
 
-	echo "release_asset=$(echo release-contents/*.tgz)" \
+	echo "release_asset=$(echo release-contents/PKGVERSION release-contents/*.tgz)" \
 		>> "${GITHUB_ENV}"
 }
 

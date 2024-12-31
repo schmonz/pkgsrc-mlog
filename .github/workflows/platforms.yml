@@ -336,6 +336,17 @@ jobs:
     needs: [ build-all-packages ]
     runs-on: ubuntu-latest
     steps:
+    - name: Download built packages
+      id: publish-download-built-packages
+      uses: actions/download-artifact@v4
+      with:
+        path: release-contents
+        merge-multiple: true
+
+    - name: Debug which packages were downloaded
+      id: publish-debug-downloaded-packages
+      run: ls -R release-contents
+
     - name: Checkout again
       id: publish-checkout
       uses: actions/checkout@v4
@@ -348,17 +359,6 @@ jobs:
         release_version="$(head -1 release-contents/PKGVERSION).gh$(date -u '+%Y%m%d-%H%M%S')"
         echo release_version="${release_version}" >> "${GITHUB_ENV}"
         git tag -a "${release_version}" -m "Version ${release_version}."
-
-    - name: Download built packages
-      id: publish-download-built-packages
-      uses: actions/download-artifact@v4
-      with:
-        path: release-contents
-        merge-multiple: true
-
-    - name: Debug which packages were downloaded
-      id: publish-debug-downloaded-packages
-      run: ls -R release-contents
 
     - name: Push tag
       id: publish-push-tag
