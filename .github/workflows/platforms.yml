@@ -352,10 +352,19 @@ jobs:
         git config user.email "schmonz-web-git@schmonz.com"
         release_version=${{ env.release_version }}
         git tag -a "${release_version}" -m "Version ${release_version}."
-        git push origin "${release_version}"
-        echo "SCHMONZ: create-tag 3: $(pwd)"
-        cd ../../..
-        echo "SCHMONZ: create-tag 4: $(pwd)"
+
+    - name: Push tag
+      id: push-tag
+      uses: ad-m/github-push-action@master
+      with:
+	directory: pkgsrc/${{ env.GITHUB_REPOSITORY }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+	push_only_tags: true
+        force: true
+
+    - name: Avoid unneeded big slow rsync
+      id: avoid-unneeded-big-slow-rsync
+      run: |
         rm -rf pkgsrc
             
     - name: Upload built packages
