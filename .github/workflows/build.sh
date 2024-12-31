@@ -30,6 +30,8 @@ compute_var_tmp() {
 
 restore_bootstrap_or_rebootstrap() {
 	cache_prefix="$1"; shift
+	lname="$1"; shift
+	arch="$1"; shift
 	pkgsrc_prefix="$1"; shift
 	var_tmp="$1"; shift
 
@@ -44,6 +46,7 @@ restore_bootstrap_or_rebootstrap() {
 
 			bootstrap_args="--workdir ${var_tmp}/pkgsrc/bootstrap"
 			bootstrap_args="${bootstrap_args} --prefix ${pkgsrc_prefix}"
+			[ "${lname}" = alpine ] && [ "${arch}" = x86 ] && bootstrap_args="${bootstrap_args} --abi 32"
 
 			./bootstrap ${bootstrap_args} \
 				|| cat ${var_tmp}/pkgsrc/bootstrap/wrk/pkgtools/cwrappers/work/libnbcompat/config.log
@@ -120,7 +123,7 @@ main() {
 	var_tmp=$(compute_var_tmp)
 
 	unset PKG_PATH
-	restore_bootstrap_or_rebootstrap ${cache_prefix} ${pkgsrc_prefix} ${var_tmp}
+	restore_bootstrap_or_rebootstrap ${cache_prefix} ${lname} ${arch} ${pkgsrc_prefix} ${var_tmp}
 	PATH="${pkgsrc_prefix}"/sbin:"${pkgsrc_prefix}"/bin:${PATH}
 	build_this_package ${var_tmp}
 	prepare_release_artifacts ${lname} ${arch} ${version} ${pkgsrc_prefix}
