@@ -347,7 +347,7 @@ jobs:
       run: |
         git config user.name "Amitai Schleier"
         git config user.email "schmonz-web-git@schmonz.com"
-        next_version=${{ process.env.release_version }}
+        next_version=${{ env.release_version }}
         git tag -a "${next_version}" -m "Version ${next_version}."
         git push --follow-tags
             
