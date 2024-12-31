@@ -161,8 +161,8 @@ jobs:
             version: '15'
             prefix: '/opt/pkg'
             host: macOS-15
-            guest: 
-            prep: 
+            guest: ''
+            prep: ''
 
           - uname: macOS
             lname: macos
@@ -171,8 +171,8 @@ jobs:
             version: '14'
             prefix: '/opt/pkg'
             host: macOS-14
-            guest: 
-            prep: 
+            guest: ''
+            prep: ''
 
           - uname: macOS
             lname: macos
@@ -181,8 +181,8 @@ jobs:
             version: '13'
             prefix: '/opt/pkg'
             host: macOS-13
-            guest: 
-            prep: 
+            guest: ''
+            prep: ''
 
           - uname: NetBSD
             lname: netbsd
@@ -251,8 +251,8 @@ jobs:
             version: '22.04'
             prefix: '/usr/pkg'
             host: ubuntu-22.04
-            guest: 
-            prep: 
+            guest: ''
+            prep: ''
 
           - uname: Ubuntu
             lname: ubuntu
@@ -261,15 +261,17 @@ jobs:
             version: '20.04'
             prefix: '/usr/pkg'
             host: ubuntu-20.04
-            guest: 
-            prep: 
+            guest: ''
+            prep: ''
     steps:
     - name: Checkout
+      id: bootstrap-checkout
       uses: actions/checkout@v4
       with:
         path: move-under-pkgsrc-once-you-have-pkgsrc
 
     - name: Map pkgsrc prefix to cache location
+      id: bootstrap-cache-path-map
       run: |
         CACHE_PREFIX=$(echo ${{ matrix.os.prefix }} | sed -e 's|/|-|g')
         echo "CACHE_PREFIX=${CACHE_PREFIX}" >> "$GITHUB_ENV"
@@ -342,31 +344,6 @@ jobs:
         path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
-    - name: Create tag
-      id: create-tag
-      run: |
-        echo "SCHMONZ: create-tag 1: $(pwd)"
-        cd pkgsrc/${GITHUB_REPOSITORY}
-        echo "SCHMONZ: create-tag 2: $(pwd)"
-        git config user.name "Amitai Schleier"
-        git config user.email "schmonz-web-git@schmonz.com"
-        release_version=${{ env.release_version }}
-        git tag -a "${release_version}" -m "Version ${release_version}."
-
-    - name: Push tag
-      id: push-tag
-      uses: ad-m/github-push-action@master
-      with:
-        directory: ${{ github.workspace }}/pkgsrc/${{ github.repository }}
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        push_only_tags: true
-        force: true
-
-    - name: Avoid unneeded big slow rsync
-      id: avoid-unneeded-big-slow-rsync
-      run: |
-        rm -rf pkgsrc
-            
     - name: Upload built packages
       id: upload-built-packages
       uses: actions/upload-artifact@v4
@@ -377,28 +354,54 @@ jobs:
         overwrite: 'false'
         if-no-files-found: 'error'
 
+    - name: Avoid unneeded big slow rsync
+      id: avoid-unneeded-big-slow-rsync
+      run: |
+        rm -rf pkgsrc
+
   publish-all-packages:
     if: always()
     needs: [ build-all-packages ]
     runs-on: ubuntu-latest
     steps:
-      - name: Download built packages
-        id: download-built-packages
-        uses: actions/download-artifact@v4
-        with:
-          path: release-contents
-          merge-multiple: true
+    - name: Checkout again
+      id: publish-checkout
+      uses: actions/checkout@v4
 
-      - name: Debug which packages were downloaded
-        run: ls -R release-contents
+    - name: Create tag
+      id: publish-create-tag
+      run: |
+        git config user.name "Amitai Schleier"
+        git config user.email "schmonz-web-git@schmonz.com"
+        release_version=${{ env.release_version }}
+        git tag -a "${release_version}" -m "Version ${release_version}."
 
-      - name: Publish packages
-        id: publish-packages
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.release_version }}
-          target_commitish: main
-          draft: false
-          prerelease: false
-          files: 'release-contents/*.tgz'
-          fail_on_unmatched_files: true
+    - name: Download built packages
+      id: publish-download-built-packages
+      uses: actions/download-artifact@v4
+      with:
+        path: release-contents
+        merge-multiple: true
+
+    - name: Debug which packages were downloaded
+      id: publish-debug-downloaded-packages
+      run: ls -R release-contents
+
+    - name: Push tag
+      id: publish-push-tag
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        push_only_tags: true
+        force: true
+
+    - name: Publish packages
+      id: publish-packages
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.release_version }}
+        target_commitish: main
+        draft: false
+        prerelease: false
+        files: 'release-contents/*.tgz'
+        fail_on_unmatched_files: true
