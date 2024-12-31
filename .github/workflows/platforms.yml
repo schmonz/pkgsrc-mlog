@@ -330,7 +330,7 @@ jobs:
     - name: Build (native)
       if: ${{ ! startsWith(matrix.os.guest, 'jirutka/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') && ! startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-native
-      run:
+      run: |
         set -e; ${{ matrix.os.prep }}
         set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}
 
@@ -343,18 +343,16 @@ jobs:
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Create tag
-      uses: actions/github-script@v7
-      with:
-        script: |
-          // XXX does the tag already exist?
-          github.rest.git.createRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: 'refs/tags/' + process.env.release_version,
-            sha: context.sha
-          })
+      id: create-tag
+      run: |
+        git config user.name "Amitai Schleier"
+        git config user.email "schmonz-web-git@schmonz.com"
+        next_version=${{ process.env.release_version }}
+        git tag -a "${next_version}" -m "Version ${next_version}."
+        git push --follow-tags
             
     - name: Upload built packages
+      id: upload-built-packages
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}
@@ -369,6 +367,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download built packages
+        id: download-built-packages
         uses: actions/download-artifact@v4
         with:
           path: release-contents
@@ -378,6 +377,7 @@ jobs:
         run: ls -R release-contents
 
       - name: Publish packages
+        id: publish-packages
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.release_version }}
