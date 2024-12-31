@@ -345,7 +345,11 @@ jobs:
     - name: Create tag
       id: create-tag
       run: |
-        cd pkgsrc/${GITHUB_REPOSITORY}
+        echo "WHERE ARE WE"
+        pwd
+        echo "WHAT'S IN HERE"
+        ls -R
+        echo "OKAY THEN"
         git config user.name "Amitai Schleier"
         git config user.email "schmonz-web-git@schmonz.com"
         release_version=${{ env.release_version }}
