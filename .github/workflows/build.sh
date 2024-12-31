@@ -70,6 +70,7 @@ prepare_release_artifacts() {
 	arch="$1"; shift
 	abi="$1"; shift
 	version="$1"; shift
+	pkgsrc_prefix="$1"; shift
 
 	abi_description="-${abi}"
 	[ "${abi}" = default ] && abi_description=''
@@ -81,7 +82,7 @@ prepare_release_artifacts() {
 		echo "SCHMONZ: prepare_release_artifacts 2: $(pwd)"
 
 		echo "release_version=$(bmake show-var VARNAME=PKGVERSION)" \
-			>> "${GITHUB_ENV}"
+			>> ../../../release-contents/PKGVERSION
 
 		mv $(bmake show-var VARNAME=PKGFILE) ../../../release-contents
 	)
@@ -90,9 +91,14 @@ prepare_release_artifacts() {
 		cd release-contents
 		echo "SCHMONZ: prepare_release_artifacts 4: $(pwd)"
 		for i in *.tgz; do
+			echo "SCHMONZ: prepare_release_artifacts 5: ${i}"
 			localbase=$(pkg_info -Q LOCALBASE $i | sed -e 's|/|-|g')
+			echo "SCHMONZ: prepare_release_artifacts 6: ${localbase}"
 			cc_version=$(pkg_info -Q CC_VERSION $i)
-			mv $i ${lname}-${arch}${abi_description}-${version}${localbase}-${cc_version}-$i
+			echo "SCHMONZ: prepare_release_artifacts 7: ${cc_version}"
+			new_name="${lname}-${version}-${arch}${abi_description}-${pkgsrc_prefix}-${cc_version}-$i"
+			echo "SCHMONZ: prepare_release_artifacts 8: ${new_name}"
+			mv $i "${new_name}"
 		done
 	)
 
@@ -123,7 +129,7 @@ main() {
 	restore_bootstrap_or_rebootstrap ${cache_prefix} ${abi} ${pkgsrc_prefix} ${var_tmp}
 	PATH="${pkgsrc_prefix}"/sbin:"${pkgsrc_prefix}"/bin:${PATH}
 	build_this_package ${var_tmp}
-	prepare_release_artifacts ${lname} ${arch} ${abi} ${version}
+	prepare_release_artifacts ${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix}
 	move_bootstrap_somewhere_cacheable ${cache_prefix} ${pkgsrc_prefix}
 }
 

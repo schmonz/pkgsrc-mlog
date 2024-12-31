@@ -1,4 +1,4 @@
-name: VM
+name: All possible platforms
 
 # TODO:
 #
@@ -368,7 +368,8 @@ jobs:
       run: |
         git config user.name "Amitai Schleier"
         git config user.email "schmonz-web-git@schmonz.com"
-        release_version=${{ env.release_version }}
+        release_version="$(head -1 release-contents/PKGVERSION).gh$(date -u '+%Y%m%d-%H%M%S')"
+        echo release_version="${release_version}" >> "${GITHUB_ENV}"
         git tag -a "${release_version}" -m "Version ${release_version}."
 
     - name: Download built packages
