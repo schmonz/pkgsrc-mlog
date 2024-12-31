@@ -357,9 +357,9 @@ jobs:
       id: push-tag
       uses: ad-m/github-push-action@master
       with:
-	directory: pkgsrc/${{ github.repository }}
+        directory: ${{ github.workspace }}/pkgsrc/${{ github.repository }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
-	push_only_tags: true
+        push_only_tags: true
         force: true
 
     - name: Avoid unneeded big slow rsync
