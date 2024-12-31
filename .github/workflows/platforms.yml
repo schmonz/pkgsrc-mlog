@@ -217,7 +217,7 @@ jobs:
           - uname: Solaris
             lname: solaris
             arch: amd64
-            version: '11.4-gcc'
+            version: '11.4'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/solaris-vm@v1
@@ -299,11 +299,11 @@ jobs:
         uses: ${{ matrix.os.guest }}
         with: |
           {
-            "release": "${{ matrix.os.version }}",
+            "release": "${{ (matrix.os.uname == 'Solaris') && format('{0}-gcc', matrix.os.version) || matrix.os.version }}",
             "usesh": true,
             "sync": "rsync",
             "prepare": "set -e; ${{ matrix.os.prep }}",
-            "run": "set -e; matrix_os_version=$(echo ${{ matrix.os.version }} | sed -e 's|-gcc||g'); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${matrix_os_version} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc"
+            "run": "set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc"
           }
 
     - name: Build (native)
