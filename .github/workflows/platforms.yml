@@ -38,7 +38,6 @@ jobs:
       ${{ matrix.os.uname }}
       ${{ matrix.os.version }}
       ${{ matrix.os.arch }}
-      ${{ matrix.os.abi }}
     runs-on: ${{ matrix.os.host }}
     strategy:
       fail-fast: false
@@ -47,8 +46,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: x86_64
-            abi: default
-            version: 'v3.21'
+            version: '3.21'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -57,8 +55,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: x86
-            abi: 32
-            version: 'v3.21'
+            version: '3.21'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -67,8 +64,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: armhf
-            abi: default
-            version: 'v3.21'
+            version: '3.21'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -77,8 +73,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: armv7
-            abi: default
-            version: 'v3.21'
+            version: '3.21'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -87,8 +82,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: aarch64
-            abi: default
-            version: 'v3.21'
+            version: '3.21'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -97,8 +91,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: ppc64le
-            abi: default
-            version: 'v3.21'
+            version: '3.21'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -107,7 +100,6 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: riscv64
-            abi: default
             version: 'edge'
             prefix: '/usr/pkg'
             host: ubuntu-latest
@@ -117,8 +109,7 @@ jobs:
           - uname: Alpine
             lname: alpine
             arch: s390x
-            abi: default
-            version: 'v3.21'
+            version: '3.21'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: jirutka/setup-alpine@v1
@@ -127,7 +118,6 @@ jobs:
           - uname: DragonFlyBSD
             lname: dragonflybsd
             arch: amd64
-            abi: default
             version: '6.4.0'
             prefix: '/usr/pkg'
             host: ubuntu-latest
@@ -137,7 +127,6 @@ jobs:
           - uname: FreeBSD
             lname: freebsd
             arch: amd64
-            abi: default
             version: '14.2'
             prefix: '/usr/pkg'
             host: ubuntu-latest
@@ -147,7 +136,6 @@ jobs:
           - uname: FreeBSD
             lname: freebsd
             arch: arm64
-            abi: default
             version: '14.2'
             prefix: '/usr/pkg'
             host: ubuntu-latest
@@ -157,7 +145,6 @@ jobs:
           - uname: macOS
             lname: macos
             arch: arm64
-            abi: default
             version: '15'
             prefix: '/opt/pkg'
             host: macOS-15
@@ -167,7 +154,6 @@ jobs:
           - uname: macOS
             lname: macos
             arch: arm64
-            abi: default
             version: '14'
             prefix: '/opt/pkg'
             host: macOS-14
@@ -177,7 +163,6 @@ jobs:
           - uname: macOS
             lname: macos
             arch: amd64
-            abi: default
             version: '13'
             prefix: '/opt/pkg'
             host: macOS-13
@@ -187,7 +172,6 @@ jobs:
           - uname: NetBSD
             lname: netbsd
             arch: amd64
-            abi: default
             version: '10.1'
             prefix: '/usr/pkg'
             host: ubuntu-latest
@@ -197,7 +181,6 @@ jobs:
           - uname: NetBSD
             lname: netbsd
             arch: arm64
-            abi: default
             version: '10.0'
             prefix: '/opt/pkg' # cross-platform-actions prepopulates /usr/pkg
             host: ubuntu-latest
@@ -207,7 +190,6 @@ jobs:
           - uname: OmniOS
             lname: omnios
             arch: amd64
-            abi: default
             version: 'r151052'
             prefix: '/opt/local'
             host: ubuntu-latest
@@ -217,7 +199,6 @@ jobs:
           - uname: OpenBSD
             lname: openbsd
             arch: amd64
-            abi: default
             version: '7.6'
             prefix: '/usr/pkg'
             host: ubuntu-latest
@@ -227,7 +208,6 @@ jobs:
           - uname: OpenBSD
             lname: openbsd
             arch: arm64
-            abi: default
             version: '7.6'
             prefix: '/usr/pkg'
             host: ubuntu-latest
@@ -237,8 +217,7 @@ jobs:
           - uname: Solaris
             lname: solaris
             arch: amd64
-            abi: default
-            version: '11.4-gcc' # XXX include compiler in all package filenames, but not specially here
+            version: '11.4-gcc'
             prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/solaris-vm@v1
@@ -247,7 +226,6 @@ jobs:
           - uname: Ubuntu
             lname: ubuntu
             arch: amd64
-            abi: default
             version: '22.04'
             prefix: '/usr/pkg'
             host: ubuntu-22.04
@@ -257,7 +235,6 @@ jobs:
           - uname: Ubuntu
             lname: ubuntu
             arch: amd64
-            abi: default
             version: '20.04'
             prefix: '/usr/pkg'
             host: ubuntu-20.04
@@ -280,16 +257,16 @@ jobs:
       id: bootstrap-restore
       uses: actions/cache/restore@v4
       with:
-        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
-        key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
-        restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}-bootstrap-
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
+        key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
+        restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-
 
     - name: Build (alpine prep)
       if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
       id: bootstrap-build-alpine-prep
       uses: jirutka/setup-alpine@v1
       with:
-        branch: ${{ matrix.os.version }}
+        branch: v${{ matrix.os.version }}
         arch: ${{ matrix.os.arch }}
         packages: ${{ matrix.os.prep }}
     - name: Build (alpine)
@@ -297,7 +274,7 @@ jobs:
       id: bootstrap-build-alpine
       shell: alpine.sh --root {0}
       run: |
-        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc
 
     - name: Build (cross-platform-actions)
       if: ${{ startsWith(matrix.os.guest, 'cross-platform-actions/') }}
@@ -311,7 +288,7 @@ jobs:
             "architecture": "${{ matrix.os.arch }}",
             "version": "${{ matrix.os.version }}",
             "shell": "sh",
-            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc"
+            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc"
           }
 
     - name: Build (vmactions)
@@ -326,7 +303,7 @@ jobs:
             "usesh": true,
             "sync": "rsync",
             "prepare": "set -e; ${{ matrix.os.prep }}",
-            "run": "set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc"
+            "run": "set -e; matrix_os_version=$(echo ${{ matrix.os.version }} | sed -e 's|-gcc||g'); git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${matrix_os_version} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc"
           }
 
     - name: Build (native)
@@ -334,21 +311,21 @@ jobs:
       id: bootstrap-build-native
       run: |
         set -e; ${{ matrix.os.prep }}
-        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.abi }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc
 
     - name: Save bootstrap
       id: bootstrap-save
       uses: actions/cache/save@v4
       if: ${{ startsWith(env.BOOTSTRAP_COMPLETED, 'yes') }}
       with:
-        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Upload built packages
       id: upload-built-packages
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.abi }}-${{ matrix.os.version }}
+        name: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}
         path: ${{ env.release_asset }}
         compression-level: '0'
         overwrite: 'false'

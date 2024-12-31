@@ -14,10 +14,9 @@ die() {
 compute_cache_prefix() {
 	lname="$1"; shift
 	arch="$1"; shift
-	abi="$1"; shift
 	version="$1"; shift
 	pkgsrc_prefix="$1"; shift
-	echo cached-${lname}-${arch}-${abi}-${version}$(echo ${pkgsrc_prefix} | sed -e 's|/|-|g')
+	echo cached-${lname}-${arch}-${version}$(echo ${pkgsrc_prefix} | sed -e 's|/|-|g')
 }
 
 compute_var_tmp() {
@@ -31,7 +30,6 @@ compute_var_tmp() {
 
 restore_bootstrap_or_rebootstrap() {
 	cache_prefix="$1"; shift
-	abi="$1"; shift
 	pkgsrc_prefix="$1"; shift
 	var_tmp="$1"; shift
 
@@ -46,7 +44,6 @@ restore_bootstrap_or_rebootstrap() {
 
 			bootstrap_args="--workdir ${var_tmp}/pkgsrc/bootstrap"
 			bootstrap_args="${bootstrap_args} --prefix ${pkgsrc_prefix}"
-			[ "${abi}" != default ] && bootstrap_args="${bootstrap_args} --abi ${abi}"
 
 			./bootstrap ${bootstrap_args} \
 				|| cat ${var_tmp}/pkgsrc/bootstrap/wrk/pkgtools/cwrappers/work/libnbcompat/config.log
@@ -68,12 +65,8 @@ build_this_package() {
 prepare_release_artifacts() {
 	lname="$1"; shift
 	arch="$1"; shift
-	abi="$1"; shift
 	version="$1"; shift
 	pkgsrc_prefix="$1"; shift
-
-	abi_description="-${abi}"
-	[ "${abi}" = default ] && abi_description=''
 
 	mkdir release-contents
 	(
@@ -97,8 +90,9 @@ prepare_release_artifacts() {
 			cc_version=$(pkg_info -Q CC_VERSION $i)
 			echo "SCHMONZ: prepare_release_artifacts 7: ${cc_version}"
 			prefix="$(echo ${pkgsrc_prefix} | sed -e 's|/||' -e 's|/|-|g')"
-			new_name="${lname}-${version}-${arch}${abi_description}-${prefix}-${cc_version}-$i"
-			echo "SCHMONZ: prepare_release_artifacts 8: ${new_name}"
+			echo "SCHMONZ: prepare_release_artifacts 8: ${prefix}"
+			new_name="${lname}-${version}-${arch}-${prefix}-${cc_version}-$i"
+			echo "SCHMONZ: prepare_release_artifacts 9: ${new_name}"
 			mv $i "${new_name}"
 		done
 	)
@@ -114,23 +108,22 @@ move_bootstrap_somewhere_cacheable() {
 }
 
 main() {
-	[ $# = 5 ] || die "usage: $0 lname arch abi version prefix"
+	[ $# = 4 ] || die "usage: $0 lname arch version prefix"
 	[ "$(id -u)" -eq 0 ] || die "script assumes it'll be run as root"
 
 	lname="$1"; shift
 	arch="$1"; shift
-	abi="$1"; shift
 	version="$1"; shift
 	pkgsrc_prefix="$1"; shift
 
-	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix})
+	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${version} ${pkgsrc_prefix})
 	var_tmp=$(compute_var_tmp)
 
 	unset PKG_PATH
-	restore_bootstrap_or_rebootstrap ${cache_prefix} ${abi} ${pkgsrc_prefix} ${var_tmp}
+	restore_bootstrap_or_rebootstrap ${cache_prefix} ${pkgsrc_prefix} ${var_tmp}
 	PATH="${pkgsrc_prefix}"/sbin:"${pkgsrc_prefix}"/bin:${PATH}
 	build_this_package ${var_tmp}
-	prepare_release_artifacts ${lname} ${arch} ${abi} ${version} ${pkgsrc_prefix}
+	prepare_release_artifacts ${lname} ${arch} ${version} ${pkgsrc_prefix}
 	move_bootstrap_somewhere_cacheable ${cache_prefix} ${pkgsrc_prefix}
 }
 
