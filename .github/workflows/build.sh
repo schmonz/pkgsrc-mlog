@@ -76,10 +76,6 @@ prepare_release_artifacts() {
 		echo "SCHMONZ: prepare_release_artifacts 1: $(pwd)"
 		cd pkgsrc/${GITHUB_REPOSITORY}
 		echo "SCHMONZ: prepare_release_artifacts 2: $(pwd)"
-
-		echo "release_version=$(bmake show-var VARNAME=PKGVERSION)" \
-			>> ../../../release-contents/PKGVERSION
-
 		mv $(bmake show-var VARNAME=PKGFILE) ../../../release-contents
 	)
 	(
@@ -100,7 +96,7 @@ prepare_release_artifacts() {
 		done
 	)
 
-	echo "release_asset=$(echo release-contents/PKGVERSION release-contents/*.tgz)" \
+	echo "release_asset=$(echo release-contents/*.tgz)" \
 		>> "${GITHUB_ENV}"
 }
 
