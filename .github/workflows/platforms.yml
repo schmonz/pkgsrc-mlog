@@ -352,7 +352,7 @@ jobs:
         git config user.email "schmonz-web-git@schmonz.com"
         release_version=${{ env.release_version }}
         git tag -a "${release_version}" -m "Version ${release_version}."
-        git push --follow-tags
+        git push origin "${release_version}"
         echo "SCHMONZ: create-tag 3: $(pwd)"
         cd ../../..
         echo "SCHMONZ: create-tag 4: $(pwd)"
