@@ -96,7 +96,8 @@ prepare_release_artifacts() {
 			echo "SCHMONZ: prepare_release_artifacts 6: ${localbase}"
 			cc_version=$(pkg_info -Q CC_VERSION $i)
 			echo "SCHMONZ: prepare_release_artifacts 7: ${cc_version}"
-			new_name="${lname}-${version}-${arch}${abi_description}-${pkgsrc_prefix}-${cc_version}-$i"
+			prefix="$(echo ${pkgsrc_prefix} | sed -e 's|/||' -e 's|/|-|g')"
+			new_name="${lname}-${version}-${arch}${abi_description}-${prefix}-${cc_version}-$i"
 			echo "SCHMONZ: prepare_release_artifacts 8: ${new_name}"
 			mv $i "${new_name}"
 		done

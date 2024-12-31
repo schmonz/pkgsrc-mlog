@@ -36,9 +36,9 @@ jobs:
   build-all-packages:
     name: >
       ${{ matrix.os.uname }}
+      ${{ matrix.os.version }}
       ${{ matrix.os.arch }}
       ${{ matrix.os.abi }}
-      ${{ matrix.os.version }}
     runs-on: ${{ matrix.os.host }}
     strategy:
       fail-fast: false
