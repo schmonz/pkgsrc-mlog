@@ -357,7 +357,7 @@ jobs:
       id: push-tag
       uses: ad-m/github-push-action@master
       with:
-	directory: "pkgsrc/${{ env.GITHUB_REPOSITORY }}"
+	directory: pkgsrc/${{ github.repository }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
 	push_only_tags: true
         force: true
