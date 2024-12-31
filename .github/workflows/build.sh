@@ -106,10 +106,6 @@ move_bootstrap_somewhere_cacheable() {
 	cp -Rp "${pkgsrc_prefix}" "${cache_prefix}" || true
 }
 
-avoid_unneeded_big_slow_rsync() {
-	rm -rf pkgsrc || true
-}
-
 main() {
 	[ $# = 5 ] || die "usage: $0 lname arch abi version prefix"
 	[ "$(id -u)" -eq 0 ] || die "script assumes it'll be run as root"
@@ -129,7 +125,6 @@ main() {
 	build_this_package ${var_tmp}
 	prepare_release_artifacts ${lname} ${arch} ${abi} ${version}
 	move_bootstrap_somewhere_cacheable ${cache_prefix} ${pkgsrc_prefix}
-	avoid_unneeded_big_slow_rsync
 }
 
 main "$@"
