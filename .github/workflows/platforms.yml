@@ -336,6 +336,10 @@ jobs:
     needs: [ build-all-packages ]
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout again
+      id: publish-checkout
+      uses: actions/checkout@v4
+
     - name: Download built packages
       id: publish-download-built-packages
       uses: actions/download-artifact@v4
@@ -345,11 +349,7 @@ jobs:
 
     - name: Debug which packages were downloaded
       id: publish-debug-downloaded-packages
-      run: ls -R release-contents
-
-    - name: Checkout again
-      id: publish-checkout
-      uses: actions/checkout@v4
+      run: ls release-contents
 
     - name: Create tag
       id: publish-create-tag
