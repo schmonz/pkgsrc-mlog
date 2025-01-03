@@ -354,7 +354,7 @@ jobs:
     - name: Create tag
       id: publish-create-tag
       run: |
-        pkgversion="$(echo release-contents/*.tgz | head -1 | sed -e 's|^.*-||' -e 's|\.tar$||')"
+        pkgversion="$(echo release-contents/*.tgz | head -1 | sed -e 's|^.*-||' -e 's|\.tgz$||')"
         echo "SCHMONZ: publish-create-tag 1: pkgversion = ${pkgversion}"
         ghversion="gh$(date -u '+%Y%m%d-%H%M%S')"
         echo "SCHMONZ: publish-create-tag 2: ghversion = ${ghversion}"
