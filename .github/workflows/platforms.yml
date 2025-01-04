@@ -176,7 +176,7 @@ jobs:
             prefix: '/opt/pkg' # maybe vmactions prepopulates /usr/pkg
             host: ubuntu-latest
             guest: vmactions/netbsd-vm@v1
-            prep: /usr/sbin/pkg_add git-base; type pkg_info; pkg_info
+            prep: /usr/sbin/pkg_add git-base; /usr/sbin/pkg_info; /usr/pkg/sbin/pkg_info || true
 
           - uname: NetBSD
             lname: netbsd
