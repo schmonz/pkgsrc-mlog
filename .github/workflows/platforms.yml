@@ -173,10 +173,10 @@ jobs:
             lname: netbsd
             arch: amd64
             version: '10.1'
-            prefix: '/usr/pkg'
+            prefix: '/opt/pkg' # maybe vmactions prepopulates /usr/pkg
             host: ubuntu-latest
             guest: vmactions/netbsd-vm@v1
-            prep: /usr/sbin/pkg_add git-base
+            prep: /usr/sbin/pkg_add git-base; type pkg_info; pkg_info
 
           - uname: NetBSD
             lname: netbsd
