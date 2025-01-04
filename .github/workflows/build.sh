@@ -13,10 +13,10 @@ die() {
 
 compute_cache_prefix() {
 	lname="$1"; shift
-	arch="$1"; shift
 	version="$1"; shift
+	arch="$1"; shift
 	pkgsrc_prefix="$1"; shift
-	echo cached-${lname}-${arch}-${version}$(echo ${pkgsrc_prefix} | sed -e 's|/|-|g')
+	echo cached-${lname}-${version}-${arch}$(echo ${pkgsrc_prefix} | sed -e 's|/|-|g')
 }
 
 compute_var_tmp() {
@@ -67,8 +67,8 @@ build_this_package() {
 
 prepare_release_artifacts() {
 	lname="$1"; shift
-	arch="$1"; shift
 	version="$1"; shift
+	arch="$1"; shift
 	pkgsrc_prefix="$1"; shift
 
 	mkdir release-contents
@@ -115,14 +115,14 @@ main() {
 	arch="$1"; shift
 	pkgsrc_prefix="$1"; shift
 
-	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${version} ${pkgsrc_prefix})
+	cache_prefix=$(compute_cache_prefix ${lname} ${version} ${arch} ${pkgsrc_prefix})
 	var_tmp=$(compute_var_tmp)
 
 	unset PKG_PATH
 	restore_bootstrap_or_rebootstrap ${cache_prefix} ${lname} ${arch} ${pkgsrc_prefix} ${var_tmp}
 	PATH="${pkgsrc_prefix}"/sbin:"${pkgsrc_prefix}"/bin:${PATH}
 	build_this_package ${var_tmp}
-	prepare_release_artifacts ${lname} ${arch} ${version} ${pkgsrc_prefix}
+	prepare_release_artifacts ${lname} ${version} ${arch} ${pkgsrc_prefix}
 	move_bootstrap_somewhere_cacheable ${cache_prefix} ${pkgsrc_prefix}
 }
 
