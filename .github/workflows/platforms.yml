@@ -257,9 +257,9 @@ jobs:
       id: bootstrap-restore
       uses: actions/cache/restore@v4
       with:
-        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
-        key: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-${{ github.run_id }}
-        restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}-bootstrap-
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}${{ env.CACHE_PREFIX }}
+        key: ${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}${{ env.CACHE_PREFIX }}-bootstrap-${{ github.run_id }}
+        restore-keys: ${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}${{ env.CACHE_PREFIX }}-bootstrap-
 
     - name: Build (alpine prep)
       if: ${{ startsWith(matrix.os.guest, 'jirutka/') }}
@@ -274,7 +274,7 @@ jobs:
       id: bootstrap-build-alpine
       shell: alpine.sh --root {0}
       run: |
-        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.version }} ${{ matrix.os.arch }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc
 
     - name: Build (cross-platform-actions)
       if: ${{ startsWith(matrix.os.guest, 'cross-platform-actions/') }}
@@ -285,10 +285,10 @@ jobs:
         with: |
           {
             "operating_system": "${{ matrix.os.lname }}",
-            "architecture": "${{ matrix.os.arch }}",
             "version": "${{ matrix.os.version }}",
+            "architecture": "${{ matrix.os.arch }}",
             "shell": "sh",
-            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; sudo rm -rf pkgsrc"
+            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.version }} ${{ matrix.os.arch }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; sudo rm -rf pkgsrc"
           }
 
     - name: Build (vmactions)
@@ -303,7 +303,7 @@ jobs:
             "usesh": true,
             "sync": "rsync",
             "prepare": "set -e; ${{ matrix.os.prep }}",
-            "run": "set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc"
+            "run": "set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.version }} ${{ matrix.os.arch }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc"
           }
 
     - name: Build (native)
@@ -311,14 +311,14 @@ jobs:
       id: bootstrap-build-native
       run: |
         set -e; ${{ matrix.os.prep }}
-        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.arch }} ${{ matrix.os.version }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; sudo rm -rf pkgsrc
+        set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.version }} ${{ matrix.os.arch }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; sudo rm -rf pkgsrc
 
     - name: Save bootstrap
       id: bootstrap-save
       uses: actions/cache/save@v4
       if: ${{ startsWith(env.BOOTSTRAP_COMPLETED, 'yes') }}
       with:
-        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.arch }}-${{ matrix.os.version }}${{ env.CACHE_PREFIX }}
+        path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}${{ env.CACHE_PREFIX }}
         key: ${{ steps.bootstrap-restore.outputs.cache-primary-key }}
 
     - name: Upload built packages

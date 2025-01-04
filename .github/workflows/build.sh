@@ -107,12 +107,12 @@ move_bootstrap_somewhere_cacheable() {
 }
 
 main() {
-	[ $# = 4 ] || die "usage: $0 lname arch version prefix"
+	[ $# = 4 ] || die "usage: $0 lname version arch prefix"
 	[ "$(id -u)" -eq 0 ] || die "script assumes it'll be run as root"
 
 	lname="$1"; shift
-	arch="$1"; shift
 	version="$1"; shift
+	arch="$1"; shift
 	pkgsrc_prefix="$1"; shift
 
 	cache_prefix=$(compute_cache_prefix ${lname} ${arch} ${version} ${pkgsrc_prefix})
