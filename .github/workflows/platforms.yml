@@ -126,7 +126,7 @@ jobs:
 
           - uname: FreeBSD
             lname: freebsd
-            arch: amd64
+            arch: x86_64
             version: '14.2'
             prefix: '/usr/pkg'
             host: ubuntu-latest
@@ -171,7 +171,7 @@ jobs:
 
           - uname: NetBSD
             lname: netbsd
-            arch: amd64
+            arch: x86_64
             version: '10.1'
             prefix: '/usr/pkg'
             host: ubuntu-latest
@@ -198,7 +198,7 @@ jobs:
 
           - uname: OpenBSD
             lname: openbsd
-            arch: amd64
+            arch: x86_64
             version: '7.6'
             prefix: '/usr/pkg'
             host: ubuntu-latest
@@ -285,6 +285,7 @@ jobs:
         with: |
           {
             "release": "${{ (matrix.os.uname == 'Solaris') && format('{0}-gcc', matrix.os.version) || matrix.os.version }}",
+            "arch": "${{ matrix.os.arch }}",
             "usesh": true,
             "sync": "rsync",
             "prepare": "set -e; ${{ matrix.os.prep }}",
