@@ -226,6 +226,15 @@ jobs:
           - uname: Ubuntu
             lname: ubuntu
             arch: amd64
+            version: '24.04'
+            prefix: '/usr/pkg'
+            host: ubuntu-24.04
+            guest: ''
+            prep: ''
+
+          - uname: Ubuntu
+            lname: ubuntu
+            arch: amd64
             version: '22.04'
             prefix: '/usr/pkg'
             host: ubuntu-22.04
