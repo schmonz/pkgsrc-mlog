@@ -135,12 +135,12 @@ jobs:
 
           - uname: FreeBSD
             lname: freebsd
-            arch: arm64
+            arch: aarch64
             version: '14.2'
             prefix: '/usr/pkg'
             host: ubuntu-latest
-            guest: cross-platform-actions/action@v0.26.0
-            prep: sudo pkg install -y git
+            guest: vmactions/freebsd-vm@v1
+            prep: pkg install -y git
 
           - uname: macOS
             lname: macos
@@ -173,19 +173,19 @@ jobs:
             lname: netbsd
             arch: amd64
             version: '10.1'
-            prefix: '/opt/pkg' # maybe vmactions prepopulates /usr/pkg
+            prefix: '/usr/pkg'
             host: ubuntu-latest
             guest: vmactions/netbsd-vm@v1
             prep: /usr/sbin/pkg_add git-base
 
           - uname: NetBSD
             lname: netbsd
-            arch: arm64
-            version: '10.0'
-            prefix: '/opt/pkg' # cross-platform-actions prepopulates /usr/pkg
+            arch: aarch64
+            version: '10.1'
+            prefix: '/usr/pkg'
             host: ubuntu-latest
-            guest: cross-platform-actions/action@v0.26.0
-            prep: sudo pkgin -y install git-base
+            guest: vmactions/netbsd-vm@v1
+            prep: /usr/sbin/pkg_add git-base
 
           - uname: OmniOS
             lname: omnios
@@ -207,12 +207,12 @@ jobs:
 
           - uname: OpenBSD
             lname: openbsd
-            arch: arm64
+            arch: aarch64
             version: '7.6'
             prefix: '/usr/pkg'
             host: ubuntu-latest
-            guest: cross-platform-actions/action@v0.26.0
-            prep: sudo pkg_add git
+            guest: vmactions/openbsd-vm@v1
+            prep: pkg_add git
 
           - uname: Solaris
             lname: solaris
@@ -276,21 +276,6 @@ jobs:
       run: |
         set -e; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; env SH=/bin/bash ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.version }} ${{ matrix.os.arch }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; rm -rf pkgsrc
 
-    - name: Build (cross-platform-actions)
-      if: ${{ startsWith(matrix.os.guest, 'cross-platform-actions/') }}
-      id: bootstrap-build-cross-platform-actions
-      uses: jenseng/dynamic-uses@v1
-      with:
-        uses: ${{ matrix.os.guest }}
-        with: |
-          {
-            "operating_system": "${{ matrix.os.lname }}",
-            "version": "${{ matrix.os.version }}",
-            "architecture": "${{ matrix.os.arch }}",
-            "shell": "sh",
-            "run": "set -e; ${{ matrix.os.prep }}; git clone --verbose --depth=1 ${GITHUB_SERVER_URL}/NetBSD/pkgsrc; mkdir -p pkgsrc/schmonz; mv move-under-pkgsrc-once-you-have-pkgsrc pkgsrc/${GITHUB_REPOSITORY}; sudo env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} GITHUB_ENV=${GITHUB_ENV} ./pkgsrc/${GITHUB_REPOSITORY}/.github/workflows/build.sh ${{ matrix.os.lname }} ${{ matrix.os.version }} ${{ matrix.os.arch }} ${{ matrix.os.prefix }}; [ -f ${{ matrix.os.prefix }}/etc/mk.conf ] && echo BOOTSTRAP_COMPLETED=yes >> ${GITHUB_ENV}; sudo rm -rf pkgsrc"
-          }
-
     - name: Build (vmactions)
       if: ${{ startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-vmactions
@@ -307,7 +292,7 @@ jobs:
           }
 
     - name: Build (native)
-      if: ${{ ! startsWith(matrix.os.guest, 'jirutka/') && ! startsWith(matrix.os.guest, 'cross-platform-actions/') && ! startsWith(matrix.os.guest, 'vmactions/') }}
+      if: ${{ ! startsWith(matrix.os.guest, 'jirutka/') && ! startsWith(matrix.os.guest, 'vmactions/') }}
       id: bootstrap-build-native
       run: |
         set -e; ${{ matrix.os.prep }}
