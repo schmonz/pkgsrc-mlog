@@ -294,7 +294,7 @@ jobs:
         with: |
           {
             "release": "${{ (matrix.os.uname == 'Solaris') && format('{0}-gcc', matrix.os.version) || matrix.os.version }}",
-            ${{ (matrix.os.arch == 'aarch64') && '"arch": "aarch64"' }},
+            "arch": ${{ (matrix.os.arch == 'aarch64') && "aarch64") || "x86_64" }},
             "usesh": true,
             "sync": "rsync",
             "prepare": "set -e; ${{ matrix.os.prep }}",
