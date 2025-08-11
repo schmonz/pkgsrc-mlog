@@ -252,7 +252,7 @@ jobs:
     steps:
     - name: Checkout
       id: bootstrap-checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         path: move-under-pkgsrc-once-you-have-pkgsrc
 
@@ -333,7 +333,7 @@ jobs:
     steps:
     - name: Checkout again
       id: publish-checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Download built packages
       id: publish-download-built-packages
