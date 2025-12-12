@@ -264,7 +264,7 @@ jobs:
 
     - name: Restore bootstrap
       id: bootstrap-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}${{ env.CACHE_PREFIX }}
         key: ${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}${{ env.CACHE_PREFIX }}-bootstrap-${{ github.run_id }}
@@ -310,7 +310,7 @@ jobs:
 
     - name: Save bootstrap
       id: bootstrap-save
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       if: ${{ startsWith(env.BOOTSTRAP_COMPLETED, 'yes') }}
       with:
         path: ${{ github.workspace }}/cached-${{ matrix.os.lname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}${{ env.CACHE_PREFIX }}
