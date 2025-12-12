@@ -318,7 +318,7 @@ jobs:
 
     - name: Upload built packages
       id: upload-built-packages
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.os.uname }}-${{ matrix.os.version }}-${{ matrix.os.arch }}
         path: ${{ env.release_asset }}
@@ -337,7 +337,7 @@ jobs:
 
     - name: Download built packages
       id: publish-download-built-packages
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         path: release-contents
         merge-multiple: true
